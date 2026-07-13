@@ -1,6 +1,6 @@
 # Root Makefile for Linux Tools Testing Lab
 
-.PHONY: all build-all clean-all gdb-run gdb-postgres-run gdb-postgres-psql gdb-postgres-attach gdb-mysql-run gdb-mysql-client gdb-mysql-attach perf-run strace-run bpftrace-opens bpftrace-syscount bpftrace-writebytes tcpdump-run tcpdump-clean
+.PHONY: all build-all clean-all gdb-run gdb-postgres-run gdb-postgres-psql gdb-postgres-attach gdb-postgres-gcore gdb-mysql-run gdb-mysql-client gdb-mysql-attach gdb-mysql-gcore perf-run strace-run bpftrace-opens bpftrace-syscount bpftrace-writebytes tcpdump-run tcpdump-clean
 
 all: build-all
 
@@ -31,6 +31,9 @@ gdb-postgres-psql:
 gdb-postgres-attach:
 	$(MAKE) -C gdb/02_postgres_debug gdb-attach
 
+gdb-postgres-gcore:
+	$(MAKE) -C gdb/02_postgres_debug gcore
+
 # GDB Lab 3: MySQL/MariaDB Thread Debugging
 gdb-mysql-run:
 	$(MAKE) -C gdb/03_mysql_debug run-server
@@ -40,6 +43,9 @@ gdb-mysql-client:
 
 gdb-mysql-attach:
 	$(MAKE) -C gdb/03_mysql_debug gdb-attach
+
+gdb-mysql-gcore:
+	$(MAKE) -C gdb/03_mysql_debug gcore
 
 # Perf Profiling Lab
 perf-run:

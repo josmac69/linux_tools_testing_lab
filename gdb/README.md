@@ -11,8 +11,8 @@ To demonstrate different levels of application debugging, this lab is split into
 | Lab Directory | Topic | Target Concept | Key Debugger Commands |
 |:---|:---|:---|:---|
 | **[01_basic_crash](file:///home/josef/github.com/josmac69/linux_tools_testing_lab/gdb/01_basic_crash)** | Basic Programming Crashes | Segment faults, buffer overflows, function frames | `break`, `run`, `print`, `next`, `backtrace` |
-| **[02_postgres_debug](file:///home/josef/github.com/josmac69/linux_tools_testing_lab/gdb/02_postgres_debug)** | PostgreSQL Connection Debugging | Process-per-connection attach, database query interception | `gdb -p <pid>`, `break exec_simple_query`, `print query_string` |
-| **[03_mysql_debug](file:///home/josef/github.com/josmac69/linux_tools_testing_lab/gdb/03_mysql_debug)** | MySQL/MariaDB Thread Debugging | Thread-per-connection model, multi-threaded state tracing | `info threads`, `break dispatch_command`, `print command` |
+| **[02_postgres_debug](file:///home/josef/github.com/josmac69/linux_tools_testing_lab/gdb/02_postgres_debug)** | PostgreSQL Connection Debugging | Process-per-connection attach, query interception, live core capture | `gdb -p <pid>`, `break exec_simple_query`, `gcore` |
+| **[03_mysql_debug](file:///home/josef/github.com/josmac69/linux_tools_testing_lab/gdb/03_mysql_debug)** | MySQL/MariaDB Thread Debugging | Thread-per-connection, multi-threaded state tracing, live core capture | `info threads`, `break dispatch_command`, `gcore` |
 
 ---
 
@@ -30,4 +30,5 @@ To demonstrate different levels of application debugging, this lab is split into
 | `frame [number]` | `f` | Switch the debugger's focus to a specific stack frame. |
 | `info threads` | | List all active OS threads inside a multi-threaded process. |
 | `thread [number]` | `t` | Switch the debugger's focus to a specific thread. |
+| `gcore [file]` | | Non-destructively write a core dump of the target process to `file`. |
 | `quit` | `q` | Detach from the target process and exit GDB. |

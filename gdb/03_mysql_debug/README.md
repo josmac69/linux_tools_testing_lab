@@ -76,3 +76,45 @@ Since MariaDB is multi-threaded, let's explore thread debugging commands:
 
 Once you run `continue`, the client receives the server response and the `SELECT 99` output displays.
 To exit GDB, type `quit` (or `q`) and confirm detaching.
+
+---
+
+## Non-Destructive Core Capture (`gcore`)
+
+In multi-threaded server applications like MariaDB, stopping a running process with GDB blocks all client connections, making interactive debugging risky on active instances. The `gcore` tool can capture a full memory dump of the entire server process (including all thread states and variables) without terminating it, pausing the daemon for only a split second.
+
+### Step 1: Generate the Core Dump
+With the MariaDB container running, run the following command in your main host terminal:
+```bash
+make gcore
+```
+This commands locates the `mariadbd` server PID (which is typically PID `1` in this container namespace) and executes `gcore -o /lab/mariadb.core <pid>`. Output:
+```text
+Saved corefile /lab/mariadb.core.<pid>
+```
+
+### Step 2: Analyze the Core Dump Offline
+Open the core dump offline using GDB against the MariaDB daemon binary:
+```bash
+# Locate your generated core file (e.g. mariadb.core.1)
+# Open it in GDB against the mariadbd daemon
+docker exec -it lab-gdb-mysql gdb /usr/sbin/mariadbd /lab/mariadb.core.<pid>
+```
+
+Within this core analysis GDB session:
+- **Inspect all thread stacks**:
+  See what every connection thread was doing at the moment of the dump:
+  ```text
+  (gdb) info threads
+  ```
+- **Inspect call stacks for all threads**:
+  ```text
+  (gdb) thread apply all backtrace
+  ```
+- **Switch to a specific thread**:
+  ```text
+  (gdb) thread <number>
+  (gdb) backtrace
+  ```
+- Note that since this is an offline memory snapshot, execution commands like `step`, `next`, or `continue` will not work.
+

@@ -53,6 +53,8 @@ make build-all
   make gdb-postgres-psql
   # Auto-attach GDB to the client backend PID (in original terminal)
   make gdb-postgres-attach
+  # Or generate a non-destructive core dump of the active backend
+  make gdb-postgres-gcore
   ```
 - **GDB Lab 3: MySQL/MariaDB Thread Debugging** (Thread-per-connection attach):
   ```bash
@@ -62,6 +64,8 @@ make build-all
   make gdb-mysql-client
   # Attach GDB to the main multi-threaded daemon (in original terminal)
   make gdb-mysql-attach
+  # Or generate a non-destructive core dump of the MariaDB daemon
+  make gdb-mysql-gcore
   ```
 - **Perf Lab** (Stat profiling & cache-miss metrics):
   ```bash

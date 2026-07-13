@@ -74,3 +74,34 @@ Now you can inspect the SQL query string directly inside the database engine's m
 
 Once you run `continue`, the client backend finishes executing, and your `psql` terminal window will display the query result (`42`).
 To detach and exit GDB, type `quit` (or `q`).
+
+---
+
+## Non-Destructive Core Capture (`gcore`)
+
+In production databases, stopping a live process using interactive GDB is highly intrusive because it halts connection handling. Instead, you can use the `gcore` (Generate Core) tool. `gcore` attaches, writes a complete copy of the process's virtual memory space to a core dump file, and immediately detaches. The process resumes execution in milliseconds with minimal disruption.
+
+### Step 1: Generate the Core Dump
+With the `psql` connection active, run the following command in your main host terminal:
+```bash
+make gcore
+```
+This commands queries `pg_stat_activity`, extracts the PID, and runs `gcore -o /lab/postgres_backend.core <pid>` inside the container. You'll see:
+```text
+Saved corefile /lab/postgres_backend.core.<pid>
+```
+
+### Step 2: Analyze the Core Dump Offline
+Once the core dump is saved, you can open and analyze it with GDB without impacting the live running PostgreSQL server:
+```bash
+# Locate your generated core file (e.g. postgres_backend.core.31)
+# Open it in GDB against the PostgreSQL binary
+docker exec -it lab-gdb-postgres gdb /usr/lib/postgresql/15/bin/postgres /lab/postgres_backend.core.<pid>
+```
+
+Within this GDB session:
+- The process status is frozen in the exact state it was in when `gcore` was triggered.
+- You can inspect the call stack with `backtrace` (or `bt`).
+- You can inspect global variables and memory.
+- Since it is a static memory dump, stepping commands (`next`, `step`, `continue`) are disabled.
+
