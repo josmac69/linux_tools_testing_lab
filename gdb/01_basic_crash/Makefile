@@ -6,7 +6,7 @@ build: target.c
 
 # Build the lab Docker image
 docker-build:
-	docker build -t lab-gdb .
+	docker build -t lab-gdb-basic .
 
 # Run the interactive GDB debugger session inside the container
 # Requires SYS_PTRACE capability and unconfined seccomp profile to debug processes
@@ -14,7 +14,7 @@ run: docker-build
 	docker run -it --rm \
 		--cap-add=SYS_PTRACE \
 		--security-opt seccomp=unconfined \
-		lab-gdb
+		lab-gdb-basic
 
 # Local clean
 clean:

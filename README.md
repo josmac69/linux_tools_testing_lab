@@ -41,9 +41,27 @@ make build-all
 
 ### 2. Run Individual Labs
 
-- **GDB Lab** (Interactive debugger session):
+- **GDB Lab 1: Basic C Crash Debugging** (Interactive debugger session):
   ```bash
   make gdb-run
+  ```
+- **GDB Lab 2: PostgreSQL Connection Debugging** (Process-per-connection attach):
+  ```bash
+  # Start the background PG server
+  make gdb-postgres-run
+  # Start the client connection (in a separate terminal window)
+  make gdb-postgres-psql
+  # Auto-attach GDB to the client backend PID (in original terminal)
+  make gdb-postgres-attach
+  ```
+- **GDB Lab 3: MySQL/MariaDB Thread Debugging** (Thread-per-connection attach):
+  ```bash
+  # Start the background MariaDB server
+  make gdb-mysql-run
+  # Start the client connection (in a separate terminal window)
+  make gdb-mysql-client
+  # Attach GDB to the main multi-threaded daemon (in original terminal)
+  make gdb-mysql-attach
   ```
 - **Perf Lab** (Stat profiling & cache-miss metrics):
   ```bash

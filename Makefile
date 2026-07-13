@@ -1,13 +1,13 @@
 # Root Makefile for Linux Tools Testing Lab
 
-.PHONY: all build-all clean-all gdb-run perf-run strace-run bpftrace-opens bpftrace-syscount bpftrace-writebytes tcpdump-run tcpdump-clean
+.PHONY: all build-all clean-all gdb-run gdb-postgres-run gdb-postgres-psql gdb-postgres-attach gdb-mysql-run gdb-mysql-client gdb-mysql-attach perf-run strace-run bpftrace-opens bpftrace-syscount bpftrace-writebytes tcpdump-run tcpdump-clean
 
 all: build-all
 
 # Build all Docker images
 build-all:
-	@echo "=== Building GDB Lab Image ==="
-	$(MAKE) -C gdb docker-build
+	@echo "=== Building GDB Sub-Lab Images ==="
+	$(MAKE) -C gdb build
 	@echo "\n=== Building Perf Lab Image ==="
 	$(MAKE) -C perf docker-build
 	@echo "\n=== Building Strace Lab Image ==="
@@ -17,9 +17,29 @@ build-all:
 	@echo "\n=== Building Tcpdump Lab Image ==="
 	$(MAKE) -C tcpdump docker-build
 
-# GDB Debugging Lab
+# GDB Lab 1: Basic Programming Crash Debugging
 gdb-run:
-	$(MAKE) -C gdb run
+	$(MAKE) -C gdb/01_basic_crash run
+
+# GDB Lab 2: PostgreSQL Connection Debugging
+gdb-postgres-run:
+	$(MAKE) -C gdb/02_postgres_debug run-server
+
+gdb-postgres-psql:
+	$(MAKE) -C gdb/02_postgres_debug psql
+
+gdb-postgres-attach:
+	$(MAKE) -C gdb/02_postgres_debug gdb-attach
+
+# GDB Lab 3: MySQL/MariaDB Thread Debugging
+gdb-mysql-run:
+	$(MAKE) -C gdb/03_mysql_debug run-server
+
+gdb-mysql-client:
+	$(MAKE) -C gdb/03_mysql_debug mysql
+
+gdb-mysql-attach:
+	$(MAKE) -C gdb/03_mysql_debug gdb-attach
 
 # Perf Profiling Lab
 perf-run:
@@ -50,6 +70,9 @@ tcpdump-clean:
 
 # Clean all Docker images and Compose networks
 clean-all:
-	@echo "=== Cleaning up lab Docker resources ==="
-	docker rmi -f lab-gdb lab-perf lab-strace lab-bpftrace lab-tcpdump 2>/dev/null || true
+	@echo "=== Cleaning up GDB lab containers ==="
+	$(MAKE) -C gdb clean || true
+	@echo "=== Cleaning up lab Docker images ==="
+	docker rmi -f lab-gdb-basic lab-gdb-postgres lab-gdb-mysql lab-perf lab-strace lab-bpftrace lab-tcpdump 2>/dev/null || true
 	$(MAKE) -C tcpdump clean || true
+
