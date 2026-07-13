@@ -1,0 +1,19 @@
+services:
+  web-server:
+    image: python:3.11-slim
+    command: python3 -m http.server 8080
+    container_name: tcpdump_web_server
+
+  client:
+    image: curlimages/curl:latest
+    command: sh -c "while true; do curl -s http://web-server:8080/ > /dev/null; sleep 2; done"
+    depends_on:
+      - web-server
+
+  sniffer:
+    build: .
+    network_mode: "service:web-server"
+    depends_on:
+      - web-server
+    # Run tcpdump on port 8080 in verbose mode, resolving IP names but not dns names (-n)
+    command: -i any -n -vv port 8080

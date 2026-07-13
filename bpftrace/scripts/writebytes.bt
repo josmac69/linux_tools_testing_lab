@@ -1,0 +1,17 @@
+/*
+ * writebytes.bt - Histogram of write system call buffer sizes.
+ *
+ * This script intercepts the sys_enter_write tracepoint to log the byte count
+ * of all write operations. On termination, it prints an ASCII power-of-2 histogram.
+ */
+
+tracepoint:syscalls:sys_enter_write
+{
+    // Record size in a log2 histogram
+    @write_sizes = hist(args->count);
+}
+
+END
+{
+    printf("\n=== Distribution of Write Buffer Sizes (Log2 Histogram) ===\n");
+}

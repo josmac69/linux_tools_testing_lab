@@ -1,0 +1,24 @@
+/*
+ * syscount.bt - Count system calls system-wide by process name.
+ *
+ * This script demonstrates the power of in-kernel aggregation. Rather than
+ * logging every event (which creates high context-switch overhead), eBPF maps
+ * accumulate counts inside the kernel. We print the aggregated list every 5 seconds.
+ */
+
+#ifndef BPFTRACE_H
+#define BPFTRACE_H
+#endif
+
+tracepoint:raw_syscalls:sys_enter
+{
+    // Increment count for the current process name (comm)
+    @[comm] = count();
+}
+
+interval:s:5
+{
+    printf("\n=== Syscalls Per Process (Last 5 seconds) ===\n");
+    print(@);
+    clear(@);
+}
