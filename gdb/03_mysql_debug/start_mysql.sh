@@ -11,5 +11,6 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 fi
 
 # Start the MariaDB daemon in the foreground, logging directly to console
+# Note: --innodb-use-native-aio=OFF disables io_uring kernel workers, preventing GDB/gcore hangs
 echo "=== Starting MariaDB Server ==="
-exec /usr/sbin/mariadbd --user=mysql --console
+exec /usr/sbin/mariadbd --user=mysql --console --innodb-use-native-aio=OFF

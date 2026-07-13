@@ -1,0 +1,214 @@
+55b7df4dc000-55b7dfb56000 r--p 00000000 00:49 15770398                   /usr/sbin/mariadbd
+55b7dfb56000-55b7e0481000 r-xp 0067a000 00:49 15770398                   /usr/sbin/mariadbd
+55b7e0481000-55b7e0b58000 r--p 00fa5000 00:49 15770398                   /usr/sbin/mariadbd
+55b7e0b58000-55b7e0cb8000 r--p 0167b000 00:49 15770398                   /usr/sbin/mariadbd
+55b7e0cb8000-55b7e0da8000 rw-p 017db000 00:49 15770398                   /usr/sbin/mariadbd
+55b7e0da8000-55b7e1680000 rw-p 00000000 00:00 0 
+55b7ffc55000-55b800357000 rw-p 00000000 00:00 0                          [heap]
+773e28000000-773e28021000 rw-p 00000000 00:00 0 
+773e28021000-773e2c000000 ---p 00000000 00:00 0 
+773e2c000000-773e2c021000 rw-p 00000000 00:00 0 
+773e2c021000-773e30000000 ---p 00000000 00:00 0 
+773e30000000-773e30022000 rw-p 00000000 00:00 0 
+773e30022000-773e34000000 ---p 00000000 00:00 0 
+773e34000000-773e34021000 rw-p 00000000 00:00 0 
+773e34021000-773e38000000 ---p 00000000 00:00 0 
+773e38000000-773e38021000 rw-p 00000000 00:00 0 
+773e38021000-773e3c000000 ---p 00000000 00:00 0 
+773e3c000000-773e3c021000 rw-p 00000000 00:00 0 
+773e3c021000-773e40000000 ---p 00000000 00:00 0 
+773e40000000-773e40021000 rw-p 00000000 00:00 0 
+773e40021000-773e44000000 ---p 00000000 00:00 0 
+773e44000000-773e44021000 rw-p 00000000 00:00 0 
+773e44021000-773e48000000 ---p 00000000 00:00 0 
+773e48000000-773e48021000 rw-p 00000000 00:00 0 
+773e48021000-773e4c000000 ---p 00000000 00:00 0 
+773e4c7fb000-773e4c7fc000 ---p 00000000 00:00 0 
+773e4c7fc000-773e4cffc000 rw-p 00000000 00:00 0 
+773e4cffc000-773e4cffd000 ---p 00000000 00:00 0 
+773e4cffd000-773e4d7fd000 rw-p 00000000 00:00 0 
+773e4d7fd000-773e4d7fe000 ---p 00000000 00:00 0 
+773e4d7fe000-773e4dffe000 rw-p 00000000 00:00 0 
+773e4dffe000-773e4dfff000 ---p 00000000 00:00 0 
+773e4dfff000-773e4e7ff000 rw-p 00000000 00:00 0 
+773e4e7ff000-773e4e800000 ---p 00000000 00:00 0 
+773e4e800000-773e4f000000 rw-p 00000000 00:00 0 
+773e4f000000-773e58000000 rw-p 00000000 00:00 0 
+773e58000000-7f3e50000000 ---p 00000000 00:00 0 
+7f3e50000000-7f3e50021000 rw-p 00000000 00:00 0 
+7f3e50021000-7f3e54000000 ---p 00000000 00:00 0 
+7f3e545c2000-7f3e5c000000 rw-p 00000000 00:00 0 
+7f3e5c000000-7f3e5c021000 rw-p 00000000 00:00 0 
+7f3e5c021000-7f3e60000000 ---p 00000000 00:00 0 
+7f3e603f6000-7f3e60800000 rw-p 00000000 00:00 0 
+7f3e60800000-7f3e61800000 rw-p 00000000 00:00 0 
+7f3e61855000-7f3e61856000 ---p 00000000 00:00 0 
+7f3e61856000-7f3e618a0000 rw-p 00000000 00:00 0 
+7f3e618a0000-7f3e618a1000 ---p 00000000 00:00 0 
+7f3e618a1000-7f3e618eb000 rw-p 00000000 00:00 0 
+7f3e618eb000-7f3e618ec000 ---p 00000000 00:00 0 
+7f3e618ec000-7f3e61936000 rw-p 00000000 00:00 0 
+7f3e61936000-7f3e61937000 ---p 00000000 00:00 0 
+7f3e61937000-7f3e62137000 rw-p 00000000 00:00 0 
+7f3e62137000-7f3e62538000 rw-p 00000000 00:00 0 
+7f3e62538000-7f3e62539000 ---p 00000000 00:00 0 
+7f3e62539000-7f3e62d39000 rw-p 00000000 00:00 0 
+7f3e62d39000-7f3e63561000 rw-p 00000000 00:00 0 
+7f3e63561000-7f3e63564000 r--p 00000000 00:49 15774152                   /usr/lib/x86_64-linux-gnu/libsnappy.so.1.1.9
+7f3e63564000-7f3e63569000 r-xp 00003000 00:49 15774152                   /usr/lib/x86_64-linux-gnu/libsnappy.so.1.1.9
+7f3e63569000-7f3e6356b000 r--p 00008000 00:49 15774152                   /usr/lib/x86_64-linux-gnu/libsnappy.so.1.1.9
+7f3e6356b000-7f3e6356c000 r--p 00009000 00:49 15774152                   /usr/lib/x86_64-linux-gnu/libsnappy.so.1.1.9
+7f3e6356c000-7f3e6356d000 rw-p 0000a000 00:49 15774152                   /usr/lib/x86_64-linux-gnu/libsnappy.so.1.1.9
+7f3e6356d000-7f3e6356e000 r--p 00000000 00:49 15774528                   /usr/lib/mysql/plugin/provider_snappy.so
+7f3e6356e000-7f3e6356f000 r-xp 00001000 00:49 15774528                   /usr/lib/mysql/plugin/provider_snappy.so
+7f3e6356f000-7f3e63570000 r--p 00002000 00:49 15774528                   /usr/lib/mysql/plugin/provider_snappy.so
+7f3e63570000-7f3e63571000 r--p 00002000 00:49 15774528                   /usr/lib/mysql/plugin/provider_snappy.so
+7f3e63571000-7f3e63572000 rw-p 00003000 00:49 15774528                   /usr/lib/mysql/plugin/provider_snappy.so
+7f3e63572000-7f3e63575000 r--p 00000000 00:49 15774111                   /usr/lib/x86_64-linux-gnu/liblzo2.so.2.0.0
+7f3e63575000-7f3e63591000 r-xp 00003000 00:49 15774111                   /usr/lib/x86_64-linux-gnu/liblzo2.so.2.0.0
+7f3e63591000-7f3e63594000 r--p 0001f000 00:49 15774111                   /usr/lib/x86_64-linux-gnu/liblzo2.so.2.0.0
+7f3e63594000-7f3e63595000 ---p 00022000 00:49 15774111                   /usr/lib/x86_64-linux-gnu/liblzo2.so.2.0.0
+7f3e63595000-7f3e63596000 r--p 00022000 00:49 15774111                   /usr/lib/x86_64-linux-gnu/liblzo2.so.2.0.0
+7f3e63596000-7f3e63597000 rw-p 00023000 00:49 15774111                   /usr/lib/x86_64-linux-gnu/liblzo2.so.2.0.0
+7f3e63597000-7f3e63598000 r--p 00000000 00:49 15774187                   /usr/lib/mysql/plugin/provider_lzo.so
+7f3e63598000-7f3e63599000 r-xp 00001000 00:49 15774187                   /usr/lib/mysql/plugin/provider_lzo.so
+7f3e63599000-7f3e6359a000 r--p 00002000 00:49 15774187                   /usr/lib/mysql/plugin/provider_lzo.so
+7f3e6359a000-7f3e6359b000 r--p 00002000 00:49 15774187                   /usr/lib/mysql/plugin/provider_lzo.so
+7f3e6359b000-7f3e6359c000 rw-p 00003000 00:49 15774187                   /usr/lib/mysql/plugin/provider_lzo.so
+7f3e6359c000-7f3e6359d000 r--p 00000000 00:49 15774181                   /usr/lib/mysql/plugin/provider_lzma.so
+7f3e6359d000-7f3e6359e000 r-xp 00001000 00:49 15774181                   /usr/lib/mysql/plugin/provider_lzma.so
+7f3e6359e000-7f3e6359f000 r--p 00002000 00:49 15774181                   /usr/lib/mysql/plugin/provider_lzma.so
+7f3e6359f000-7f3e635a0000 r--p 00002000 00:49 15774181                   /usr/lib/mysql/plugin/provider_lzma.so
+7f3e635a0000-7f3e635a1000 rw-p 00003000 00:49 15774181                   /usr/lib/mysql/plugin/provider_lzma.so
+7f3e635a1000-7f3e635a2000 r--p 00000000 00:49 15774175                   /usr/lib/mysql/plugin/provider_lz4.so
+7f3e635a2000-7f3e635a3000 r-xp 00001000 00:49 15774175                   /usr/lib/mysql/plugin/provider_lz4.so
+7f3e635a3000-7f3e635a4000 r--p 00002000 00:49 15774175                   /usr/lib/mysql/plugin/provider_lz4.so
+7f3e635a4000-7f3e635a5000 r--p 00002000 00:49 15774175                   /usr/lib/mysql/plugin/provider_lz4.so
+7f3e635a5000-7f3e635a6000 rw-p 00003000 00:49 15774175                   /usr/lib/mysql/plugin/provider_lz4.so
+7f3e635a6000-7f3e635a8000 r--p 00000000 00:49 16518831                   /usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4
+7f3e635a8000-7f3e635b5000 r-xp 00002000 00:49 16518831                   /usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4
+7f3e635b5000-7f3e635b7000 r--p 0000f000 00:49 16518831                   /usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4
+7f3e635b7000-7f3e635b8000 r--p 00010000 00:49 16518831                   /usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4
+7f3e635b8000-7f3e635b9000 rw-p 00011000 00:49 16518831                   /usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4
+7f3e635b9000-7f3e635ba000 r--p 00000000 00:49 15774169                   /usr/lib/mysql/plugin/provider_bzip2.so
+7f3e635ba000-7f3e635bb000 r-xp 00001000 00:49 15774169                   /usr/lib/mysql/plugin/provider_bzip2.so
+7f3e635bb000-7f3e635bc000 r--p 00002000 00:49 15774169                   /usr/lib/mysql/plugin/provider_bzip2.so
+7f3e635bc000-7f3e635bd000 r--p 00002000 00:49 15774169                   /usr/lib/mysql/plugin/provider_bzip2.so
+7f3e635bd000-7f3e635be000 rw-p 00003000 00:49 15774169                   /usr/lib/mysql/plugin/provider_bzip2.so
+7f3e635be000-7f3e6b5bf000 rw-p 00000000 00:00 0 
+7f3e6b5bf000-7f3e6b5c0000 ---p 00000000 00:00 0 
+7f3e6b5c0000-7f3e6b5d0000 rw-p 00000000 00:00 0 
+7f3e6b5d0000-7f3e6b751000 rw-p 00000000 00:00 0 
+7f3e6b751000-7f3e6b756000 r--p 00000000 00:49 16518862                   /usr/lib/x86_64-linux-gnu/libgpg-error.so.0.33.1
+7f3e6b756000-7f3e6b76c000 r-xp 00005000 00:49 16518862                   /usr/lib/x86_64-linux-gnu/libgpg-error.so.0.33.1
+7f3e6b76c000-7f3e6b777000 r--p 0001b000 00:49 16518862                   /usr/lib/x86_64-linux-gnu/libgpg-error.so.0.33.1
+7f3e6b777000-7f3e6b778000 r--p 00025000 00:49 16518862                   /usr/lib/x86_64-linux-gnu/libgpg-error.so.0.33.1
+7f3e6b778000-7f3e6b779000 rw-p 00026000 00:49 16518862                   /usr/lib/x86_64-linux-gnu/libgpg-error.so.0.33.1
+7f3e6b779000-7f3e6b77c000 r--p 00000000 00:49 16518868                   /usr/lib/x86_64-linux-gnu/liblz4.so.1.9.4
+7f3e6b77c000-7f3e6b79a000 r-xp 00003000 00:49 16518868                   /usr/lib/x86_64-linux-gnu/liblz4.so.1.9.4
+7f3e6b79a000-7f3e6b79d000 r--p 00021000 00:49 16518868                   /usr/lib/x86_64-linux-gnu/liblz4.so.1.9.4
+7f3e6b79d000-7f3e6b79e000 r--p 00023000 00:49 16518868                   /usr/lib/x86_64-linux-gnu/liblz4.so.1.9.4
+7f3e6b79e000-7f3e6b79f000 rw-p 00024000 00:49 16518868                   /usr/lib/x86_64-linux-gnu/liblz4.so.1.9.4
+7f3e6b79f000-7f3e6b7a4000 r--p 00000000 00:49 16518933                   /usr/lib/x86_64-linux-gnu/libzstd.so.1.5.4
+7f3e6b7a4000-7f3e6b845000 r-xp 00005000 00:49 16518933                   /usr/lib/x86_64-linux-gnu/libzstd.so.1.5.4
+7f3e6b845000-7f3e6b859000 r--p 000a6000 00:49 16518933                   /usr/lib/x86_64-linux-gnu/libzstd.so.1.5.4
+7f3e6b859000-7f3e6b85a000 r--p 000b9000 00:49 16518933                   /usr/lib/x86_64-linux-gnu/libzstd.so.1.5.4
+7f3e6b85a000-7f3e6b85b000 rw-p 000ba000 00:49 16518933                   /usr/lib/x86_64-linux-gnu/libzstd.so.1.5.4
+7f3e6b85b000-7f3e6b85d000 rw-p 00000000 00:00 0 
+7f3e6b85d000-7f3e6b861000 r--p 00000000 00:49 16518870                   /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.1
+7f3e6b861000-7f3e6b87e000 r-xp 00004000 00:49 16518870                   /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.1
+7f3e6b87e000-7f3e6b88a000 r--p 00021000 00:49 16518870                   /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.1
+7f3e6b88a000-7f3e6b88b000 r--p 0002d000 00:49 16518870                   /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.1
+7f3e6b88b000-7f3e6b88c000 rw-p 0002e000 00:49 16518870                   /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.1
+7f3e6b88c000-7f3e6b89b000 r--p 00000000 00:49 16518856                   /usr/lib/x86_64-linux-gnu/libgcrypt.so.20.4.1
+7f3e6b89b000-7f3e6b985000 r-xp 0000f000 00:49 16518856                   /usr/lib/x86_64-linux-gnu/libgcrypt.so.20.4.1
+7f3e6b985000-7f3e6b9c9000 r--p 000f9000 00:49 16518856                   /usr/lib/x86_64-linux-gnu/libgcrypt.so.20.4.1
+7f3e6b9c9000-7f3e6b9ce000 r--p 0013c000 00:49 16518856                   /usr/lib/x86_64-linux-gnu/libgcrypt.so.20.4.1
+7f3e6b9ce000-7f3e6b9d2000 rw-p 00141000 00:49 16518856                   /usr/lib/x86_64-linux-gnu/libgcrypt.so.20.4.1
+7f3e6b9d2000-7f3e6b9d3000 rw-p 00000000 00:00 0 
+7f3e6b9d3000-7f3e6b9d6000 r--p 00000000 00:49 15769578                   /usr/lib/x86_64-linux-gnu/libcap.so.2.66
+7f3e6b9d6000-7f3e6b9db000 r-xp 00003000 00:49 15769578                   /usr/lib/x86_64-linux-gnu/libcap.so.2.66
+7f3e6b9db000-7f3e6b9dd000 r--p 00008000 00:49 15769578                   /usr/lib/x86_64-linux-gnu/libcap.so.2.66
+7f3e6b9dd000-7f3e6b9de000 r--p 0000a000 00:49 15769578                   /usr/lib/x86_64-linux-gnu/libcap.so.2.66
+7f3e6b9de000-7f3e6b9df000 rw-p 0000b000 00:49 15769578                   /usr/lib/x86_64-linux-gnu/libcap.so.2.66
+7f3e6b9df000-7f3e6ba05000 r--p 00000000 00:49 15764602                   /usr/lib/x86_64-linux-gnu/libc.so.6
+7f3e6ba05000-7f3e6bb5b000 r-xp 00026000 00:49 15764602                   /usr/lib/x86_64-linux-gnu/libc.so.6
+7f3e6bb5b000-7f3e6bbae000 r--p 0017c000 00:49 15764602                   /usr/lib/x86_64-linux-gnu/libc.so.6
+7f3e6bbae000-7f3e6bbb2000 r--p 001cf000 00:49 15764602                   /usr/lib/x86_64-linux-gnu/libc.so.6
+7f3e6bbb2000-7f3e6bbb4000 rw-p 001d3000 00:49 15764602                   /usr/lib/x86_64-linux-gnu/libc.so.6
+7f3e6bbb4000-7f3e6bbc1000 rw-p 00000000 00:00 0 
+7f3e6bbc1000-7f3e6bbc4000 r--p 00000000 00:49 16518854                   /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+7f3e6bbc4000-7f3e6bbdb000 r-xp 00003000 00:49 16518854                   /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+7f3e6bbdb000-7f3e6bbdf000 r--p 0001a000 00:49 16518854                   /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+7f3e6bbdf000-7f3e6bbe0000 r--p 0001d000 00:49 16518854                   /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+7f3e6bbe0000-7f3e6bbe1000 rw-p 0001e000 00:49 16518854                   /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+7f3e6bbe1000-7f3e6bbe3000 rw-p 00000000 00:00 0 
+7f3e6bbe3000-7f3e6bbf3000 r--p 00000000 00:49 15764608                   /usr/lib/x86_64-linux-gnu/libm.so.6
+7f3e6bbf3000-7f3e6bc67000 r-xp 00010000 00:49 15764608                   /usr/lib/x86_64-linux-gnu/libm.so.6
+7f3e6bc67000-7f3e6bcc1000 r--p 00084000 00:49 15764608                   /usr/lib/x86_64-linux-gnu/libm.so.6
+7f3e6bcc1000-7f3e6bcc2000 r--p 000dd000 00:49 15764608                   /usr/lib/x86_64-linux-gnu/libm.so.6
+7f3e6bcc2000-7f3e6bcc3000 rw-p 000de000 00:49 15764608                   /usr/lib/x86_64-linux-gnu/libm.so.6
+7f3e6bcc3000-7f3e6bd5c000 r--p 00000000 00:49 16518911                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30
+7f3e6bd5c000-7f3e6be5d000 r-xp 00099000 00:49 16518911                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30
+7f3e6be5d000-7f3e6becc000 r--p 0019a000 00:49 16518911                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30
+7f3e6becc000-7f3e6bed7000 r--p 00209000 00:49 16518911                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30
+7f3e6bed7000-7f3e6beda000 rw-p 00214000 00:49 16518911                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30
+7f3e6beda000-7f3e6bedd000 rw-p 00000000 00:00 0 
+7f3e6bedd000-7f3e6bfa2000 r--p 00000000 00:49 15769486                   /usr/lib/x86_64-linux-gnu/libcrypto.so.3
+7f3e6bfa2000-7f3e6c21f000 r-xp 000c5000 00:49 15769486                   /usr/lib/x86_64-linux-gnu/libcrypto.so.3
+7f3e6c21f000-7f3e6c2fd000 r--p 00342000 00:49 15769486                   /usr/lib/x86_64-linux-gnu/libcrypto.so.3
+7f3e6c2fd000-7f3e6c35f000 r--p 0041f000 00:49 15769486                   /usr/lib/x86_64-linux-gnu/libcrypto.so.3
+7f3e6c35f000-7f3e6c362000 rw-p 00481000 00:49 15769486                   /usr/lib/x86_64-linux-gnu/libcrypto.so.3
+7f3e6c362000-7f3e6c365000 rw-p 00000000 00:00 0 
+7f3e6c365000-7f3e6c384000 r--p 00000000 00:49 15769487                   /usr/lib/x86_64-linux-gnu/libssl.so.3
+7f3e6c384000-7f3e6c3e1000 r-xp 0001f000 00:49 15769487                   /usr/lib/x86_64-linux-gnu/libssl.so.3
+7f3e6c3e1000-7f3e6c400000 r--p 0007c000 00:49 15769487                   /usr/lib/x86_64-linux-gnu/libssl.so.3
+7f3e6c400000-7f3e6c40a000 r--p 0009a000 00:49 15769487                   /usr/lib/x86_64-linux-gnu/libssl.so.3
+7f3e6c40a000-7f3e6c40e000 rw-p 000a4000 00:49 15769487                   /usr/lib/x86_64-linux-gnu/libssl.so.3
+7f3e6c40e000-7f3e6c411000 r--p 00000000 00:49 16518931                   /usr/lib/x86_64-linux-gnu/libz.so.1.2.13
+7f3e6c411000-7f3e6c424000 r-xp 00003000 00:49 16518931                   /usr/lib/x86_64-linux-gnu/libz.so.1.2.13
+7f3e6c424000-7f3e6c42b000 r--p 00016000 00:49 16518931                   /usr/lib/x86_64-linux-gnu/libz.so.1.2.13
+7f3e6c42b000-7f3e6c42c000 r--p 0001c000 00:49 16518931                   /usr/lib/x86_64-linux-gnu/libz.so.1.2.13
+7f3e6c42c000-7f3e6c42d000 rw-p 0001d000 00:49 16518931                   /usr/lib/x86_64-linux-gnu/libz.so.1.2.13
+7f3e6c42d000-7f3e6c443000 r--p 00000000 00:49 16518913                   /usr/lib/x86_64-linux-gnu/libsystemd.so.0.35.0
+7f3e6c443000-7f3e6c4c2000 r-xp 00016000 00:49 16518913                   /usr/lib/x86_64-linux-gnu/libsystemd.so.0.35.0
+7f3e6c4c2000-7f3e6c4f0000 r--p 00095000 00:49 16518913                   /usr/lib/x86_64-linux-gnu/libsystemd.so.0.35.0
+7f3e6c4f0000-7f3e6c4fb000 r--p 000c2000 00:49 16518913                   /usr/lib/x86_64-linux-gnu/libsystemd.so.0.35.0
+7f3e6c4fb000-7f3e6c4fc000 rw-p 000cd000 00:49 16518913                   /usr/lib/x86_64-linux-gnu/libsystemd.so.0.35.0
+7f3e6c4fc000-7f3e6c4ff000 rw-p 00000000 00:00 0 
+7f3e6c4ff000-7f3e6c502000 r--p 00000000 00:49 15770346                   /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0
+7f3e6c502000-7f3e6c508000 r-xp 00003000 00:49 15770346                   /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0
+7f3e6c508000-7f3e6c50a000 r--p 00009000 00:49 15770346                   /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0
+7f3e6c50a000-7f3e6c50b000 r--p 0000b000 00:49 15770346                   /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0
+7f3e6c50b000-7f3e6c50c000 rw-p 0000c000 00:49 15770346                   /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0
+7f3e6c50c000-7f3e6c50d000 r--p 00000000 00:49 15770315                   /usr/lib/x86_64-linux-gnu/libaio.so.1.0.2
+7f3e6c50d000-7f3e6c50e000 r-xp 00001000 00:49 15770315                   /usr/lib/x86_64-linux-gnu/libaio.so.1.0.2
+7f3e6c50e000-7f3e6c50f000 r--p 00002000 00:49 15770315                   /usr/lib/x86_64-linux-gnu/libaio.so.1.0.2
+7f3e6c50f000-7f3e6c510000 r--p 00002000 00:49 15770315                   /usr/lib/x86_64-linux-gnu/libaio.so.1.0.2
+7f3e6c510000-7f3e6c511000 rw-p 00003000 00:49 15770315                   /usr/lib/x86_64-linux-gnu/libaio.so.1.0.2
+7f3e6c511000-7f3e6c513000 r--p 00000000 00:49 15770371                   /usr/lib/x86_64-linux-gnu/liburing.so.2.3
+7f3e6c513000-7f3e6c515000 r-xp 00002000 00:49 15770371                   /usr/lib/x86_64-linux-gnu/liburing.so.2.3
+7f3e6c515000-7f3e6c516000 r--p 00004000 00:49 15770371                   /usr/lib/x86_64-linux-gnu/liburing.so.2.3
+7f3e6c516000-7f3e6c517000 r--p 00004000 00:49 15770371                   /usr/lib/x86_64-linux-gnu/liburing.so.2.3
+7f3e6c517000-7f3e6c518000 rw-p 00005000 00:49 15770371                   /usr/lib/x86_64-linux-gnu/liburing.so.2.3
+7f3e6c518000-7f3e6c51a000 r--p 00000000 00:49 16518841                   /usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0
+7f3e6c51a000-7f3e6c530000 r-xp 00002000 00:49 16518841                   /usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0
+7f3e6c530000-7f3e6c54a000 r--p 00018000 00:49 16518841                   /usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0
+7f3e6c54a000-7f3e6c54b000 r--p 00031000 00:49 16518841                   /usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0
+7f3e6c54b000-7f3e6c54c000 rw-p 00032000 00:49 16518841                   /usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0
+7f3e6c54c000-7f3e6c554000 rw-p 00000000 00:00 0 
+7f3e6c554000-7f3e6c556000 r--p 00000000 00:49 16518895                   /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0.11.2
+7f3e6c556000-7f3e6c5c1000 r-xp 00002000 00:49 16518895                   /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0.11.2
+7f3e6c5c1000-7f3e6c5ec000 r--p 0006d000 00:49 16518895                   /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0.11.2
+7f3e6c5ec000-7f3e6c5ed000 r--p 00098000 00:49 16518895                   /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0.11.2
+7f3e6c5ed000-7f3e6c5ee000 rw-p 00099000 00:49 16518895                   /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0.11.2
+7f3e6c5ef000-7f3e6c5f1000 r--p 00000000 00:00 0 
+7f3e6c5f1000-7f3e6c5f3000 rw-p 00000000 00:00 0 
+7f3e6c5f3000-7f3e6c5f7000 r--p 00000000 00:00 0                          [vvar]
+7f3e6c5f7000-7f3e6c5f9000 r-xp 00000000 00:00 0                          [vdso]
+7f3e6c5f9000-7f3e6c5fa000 r--p 00000000 00:49 15764596                   /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7f3e6c5fa000-7f3e6c620000 r-xp 00001000 00:49 15764596                   /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7f3e6c620000-7f3e6c62a000 r--p 00027000 00:49 15764596                   /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7f3e6c62a000-7f3e6c62c000 r--p 00031000 00:49 15764596                   /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7f3e6c62c000-7f3e6c62e000 rw-p 00033000 00:49 15764596                   /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7ffc056da000-7ffc056fb000 rw-p 00000000 00:00 0                          [stack]
