@@ -157,12 +157,38 @@ Even if the query is long or complex, you can extract it and find out who sent i
     *   `database_name`: The database the client connected to.
     *   `user_name`: The authenticated PostgreSQL database user.
 
-### 2. Tracing the Call Stack Hierarchy
-Use `backtrace` (or `bt`) to list all active stack frames. Each line (frame) represents a function that has been called but has not yet returned:
+### 2. Tracing the Call Stack Hierarchy & Selecting Frames
+Use `backtrace` (or `bt`) to list all active stack frames. Each line (frame) represents a function call that has been started but has not yet returned:
 ```text
-#0  exec_simple_query (query_string=0x563fc10ea538 "select 42;") at ...
-#1  0x0000563f868452d9 in PostgresMain ...
+#0  0x00007fe363039ef3 in epoll_wait (...) at ...
+#1  0x0000563f8682013e in WaitEventSetWaitBlock (...) at ...
+#2  0x0000563f86716815 in secure_read (...) at ...
+#3  exec_simple_query (query_string=0x563fc10ea538 "select 42;") at ...
+#4  0x0000563f868452d9 in PostgresMain ...
 ```
+
+#### Understanding Frame Numbers and Local Scope
+*   **Frame `#0`**: This is the function that is currently executing (where the execution pointer is right now).
+*   **Frames `#1`, `#2`, `#3`, etc.**: These are the ancestor functions in the calling chain. Function `#4` called `#3`, which called `#2`, which called `#1`, which called `#0`.
+*   **Local Scope Isolation**: GDB can only print local variables belonging to the *currently selected frame*. By default, when you attach to a process or load a core dump, GDB starts in **Frame `#0`**. If you try to run `print query_string` in Frame `#0` (which is `epoll_wait`), GDB will say:
+    ```text
+    No symbol "query_string" in current context.
+    ```
+    This is because `query_string` is only defined inside `exec_simple_query`.
+
+#### How to Switch and Select a Frame
+To inspect variables defined in an outer function, you must instruct GDB to shift its local scope to that function's frame number:
+1.  Look at the `bt` list and locate the frame number next to your target function (e.g. `#3` for `exec_simple_query`).
+2.  Switch to that frame using:
+    ```text
+    (gdb) frame 3
+    ```
+3.  Once the focus changes, you can successfully inspect the query string:
+    ```text
+    (gdb) print query_string
+    ```
+
+#### PostgreSQL Processing Flow in the Stack
 PostgreSQL's processing stages are visible in the stack frames from bottom to top:
 1.  **`main()`** & **`PostmasterMain()`**: Daemon startup and port listening.
 2.  **`ServerLoop()`** & **`BackendStartup()`**: Spawning a backend child when a client connects.
@@ -173,11 +199,6 @@ PostgreSQL's processing stages are visible in the stack frames from bottom to to
     *   `pg_plan_queries()`: Cost-based optimizer generating execution paths.
     *   `PortalRun()` / `ExecutorRun()`: Walking the plan nodes to execute scans and joins.
 
-To jump GDB focus to a specific frame (e.g. frame `#1` to inspect `PostgresMain` variables):
-```text
-(gdb) frame 1
-```
-
 ### 3. Inspecting PostgreSQL Memory Contexts
 PostgreSQL uses a hierarchy of custom memory pools called **Memory Contexts** (e.g., `TopMemoryContext`, `CacheMemoryContext`, `ExecutorStateContext`) to prevent memory leaks.
 *   **Dump the memory context tree**:
@@ -186,6 +207,13 @@ PostgreSQL uses a hierarchy of custom memory pools called **Memory Contexts** (e
     (gdb) call MemoryContextStats(TopMemoryContext)
     ```
     This prints a highly detailed tree of context names, allocations, and free-list statistics to the container's standard error logs.
+
+    > [!WARNING]
+    > **Function Invocation Requirement**: Calling function symbols (using `call` or `print` on a C function) requires GDB to temporarily hijack registers and the stack to run code in a live process namespace. This works **only when attached to a live process** (e.g., via `make gdb-attach`). If you attempt to invoke this command on a static core dump file, GDB will fail with:
+    > ```text
+    > You can't do that without a process to debug.
+    > ```
+
 
 ### 4. Analyzing Locks and IPC Wait States
 If a query is hanging or slow, it may be waiting on a lock or semaphore:
@@ -199,5 +227,27 @@ If a query is hanging or slow, it may be waiting on a lock or semaphore:
     *   Check `MyProc->waitStatus`: Lock request status (e.g., `STATUS_WAITING` or `STATUS_OK`).
 *   **Check latch/event waits**:
     Look at the stack trace. If the top frame is stuck in `WaitLatchOrSocket()` or `epoll_wait()`, the database is idle, waiting for the client to send a query, or waiting for physical disk I/O / WAL flush completion.
+
+### 5. Finding and Listing Symbols (Variables, Arguments, and Types)
+When debugging offline or in a live session, you can query GDB to discover what variables and types exist in the current scope or binary:
+*   **List all local variables in the current frame**:
+    ```text
+    (gdb) info locals
+    ```
+*   **List all function arguments in the current frame**:
+    ```text
+    (gdb) info args
+    ```
+*   **Search for global or static variables matching a pattern**:
+    Because the `postgres` executable has thousands of global variables, restrict your search using a regular expression:
+    ```text
+    (gdb) info variables MyProc
+    (gdb) info variables ^My
+    ```
+*   **Search for defined types and structures**:
+    ```text
+    (gdb) info types Port
+    ```
+
 
 
