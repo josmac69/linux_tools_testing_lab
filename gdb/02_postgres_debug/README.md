@@ -112,9 +112,31 @@ Within this core analysis GDB session:
 
 ## Detailed Analysis: What is inside a PostgreSQL Core Dump?
 
-A core dump is a complete snapshot of the virtual memory space of the target `postgres` process at the exact microsecond `gcore` was run. This includes the process's stack, heap, CPU register states, and shared memory mapping descriptors.
+A core dump is a standard ELF (Executable and Linkable Format) file that captures a complete snapshot of the virtual memory space of the target process at the exact microsecond the dump is triggered.
 
-Here is a breakdown of what you can inspect and how to interpret it:
+### System-Level Structure of an ELF Core Dump
+
+On Linux, a core file (usually mapped into memory as an ELF file) consists of the following sections:
+
+1.  **ELF Header**:
+    *   Identifies the file type as `ET_CORE` (Core file).
+    *   Specifies target machine architecture (e.g., `x86_64`) and file offsets.
+2.  **Program Header Table**:
+    *   A list of descriptors pointing to memory segments (`PT_NOTE` and `PT_LOAD`) stored in the file.
+3.  **`PT_NOTE` Segments (Process Metadata)**:
+    *   **`NT_PRSTATUS`**: Contains CPU register states (such as instruction pointer `RIP`, stack pointer `RSP`, general-purpose registers), Process ID (`PID`), Parent Process ID (`PPID`), execution state flags, and the signal that triggered the dump (if caused by a crash).
+    *   **`NT_PRPSINFO`**: Contains the command name, arguments, and process owner credentials.
+    *   **`NT_AUXV` (Auxiliary Vector)**: Operating system parameter info passed from kernel to user space (e.g., page size, entry points).
+    *   **`NT_FILE`**: A map showing which virtual memory ranges map to which external libraries and filesystem objects (e.g. shared object libraries like `libc.so` or `postgres` binary).
+4.  **`PT_LOAD` Segments (Virtual Memory Pages)**:
+    *   **Process Heap**: Dynamic memory allocated via `malloc`, `calloc`, or `brk` system calls.
+    *   **Thread Stacks**: The memory stacks containing active local variables, parameters, and function call return pointers.
+    *   **Global/Static variables**: Allocated memory for `.data` and `.bss` sections.
+    *   **Shared Memory Segment Filter**: PostgreSQL maps a large shared memory block (for shared buffers and locks). By default, the Linux kernel coredump filter (`/proc/PID/coredump_filter`) is configured to *exclude* shared memory segments to avoid generating massive, multi-gigabyte files. Hence, the core file primarily contains the client process's private local state, heap allocations, and thread stacks (making the file size compact, around ~160MB).
+
+---
+
+Here is a breakdown of what you can inspect and how to interpret it inside GDB:
 
 ### 1. Intercepting the Current SQL Query & Client Connection State
 Even if the query is long or complex, you can extract it and find out who sent it:
