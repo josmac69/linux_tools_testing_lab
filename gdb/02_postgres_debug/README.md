@@ -249,5 +249,15 @@ When debugging offline or in a live session, you can query GDB to discover what 
     (gdb) info types Port
     ```
 
+---
+
+## Cleaning Up
+Once you are done with the exercise, stop and remove the container, and clean up any core dump files:
+```bash
+make clean
+```
+This stops and removes the running database container and deletes any `postgres_backend.core.*` files generated inside the host lab directory.
+
+
 
 
