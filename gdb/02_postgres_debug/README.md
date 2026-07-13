@@ -260,35 +260,63 @@ Stop any existing container and launch a new interactive session running GDB:
 ```bash
 make run-gdb
 ```
-This target starts the container in the foreground (`-it`) and launches GDB wrapping the main `postgres` process, pre-configured with signal-handling exemptions for `SIGUSR1` and `SIGUSR2`, as well as fork-following logic.
+This target starts the container in the foreground (`-it`) and launches GDB wrapping the main `postgres` process, pre-configured with signal-handling exemptions for `SIGUSR1` and `SIGUSR2`.
 
 GDB will load the symbols and stop at the `(gdb)` prompt.
 
 ### Step 2: Set a Breakpoint and Launch the Server
-At the GDB prompt, set a breakpoint on `exec_simple_query` and type `run`:
-```text
-(gdb) break exec_simple_query
-(gdb) run
-```
-The postmaster daemon will start up and print its standard log output directly to the GDB console.
+1.  At the GDB prompt, set a breakpoint on `exec_simple_query` and start the postmaster:
+    ```text
+    (gdb) break exec_simple_query
+    (gdb) run
+    ```
+    The postmaster daemon will start up and run the system initialization and startup process.
+2.  **Wait until you see the following log line** indicating the database is fully initialized and ready for connections:
+    ```text
+    LOG:  database system is ready to accept connections
+    ```
+3.  > [!IMPORTANT]
+    > **Regaining GDB Focus to Enable Fork Tracking:** By default, GDB is focused on the parent process. If you configure GDB to track connection child forks *before* Postgres starts, GDB will get distracted by the temporary database startup/checkpointer processes and halt when they exit.
+    > 
+    > Now that Postgres is fully running and idle:
+    *   Press **Ctrl+C** in GDB to pause the postmaster process and regain the `(gdb)` prompt.
+    *   Configure fork-tracking settings so GDB intercepts client connection backend processes:
+        ```text
+        (gdb) set follow-fork-mode child
+        (gdb) set detach-on-fork off
+        (gdb) set schedule-multiple on
+        ```
+    *   Resume the postmaster process:
+        ```text
+        (gdb) continue
+        ```
 
 ### Step 3: Connect and Trigger the Breakpoint
-In a **new terminal window**, connect to the database:
-```bash
-make psql
-```
-And execute a query:
-```sql
-SELECT 101;
-```
-Back in your **GDB terminal window**, you will see GDB intercept the newly spawned child process and stop at the breakpoint:
-```text
-[New inferior 2 (process 12345)]
-[Switching to inferior 2 (process 12345)]
-Breakpoint 1, exec_simple_query (query_string=0x... "SELECT 101;") at postgres.c:1234
-(gdb) print query_string
-```
-Type `continue` (or `c`) to let the query finish and display on the client terminal.
+1.  In a **new terminal window**, attempt to connect to the database:
+    ```bash
+    make psql
+    ```
+    > [!IMPORTANT]
+    > **Why `make psql` hangs immediately:** The `psql` client executes several initialization queries (e.g., version checks, timezone settings, parameter configuration) immediately upon connection. Because you set a breakpoint on `exec_simple_query`, the connection backend will hit the breakpoint during this handshake, causing the client to freeze before presenting the `postgres=#` prompt.
+
+2.  Go back to your **GDB terminal window**. GDB will report that the breakpoint was hit during the connection setup:
+    ```text
+    [New inferior 2 (process 12345)]
+    [Switching to inferior 2 (process 12345)]
+    Breakpoint 1, exec_simple_query (query_string=0x... "SELECT pg_catalog.set_config(...)")
+    ```
+3.  Type `continue` (or `c`) and press Enter in GDB. You will need to do this 2 or 3 times as GDB intercepts the subsequent startup queries.
+4.  Once the client initialization is complete, the `postgres=#` prompt will appear in your client terminal window.
+5.  In the client terminal, run your target test query:
+    ```sql
+    SELECT 101;
+    ```
+6.  The client will freeze once more. In the GDB terminal, you will see GDB stop at the breakpoint for your query:
+    ```text
+    Breakpoint 1, exec_simple_query (query_string=0x... "SELECT 101;") at postgres.c:1234
+    (gdb) print query_string
+    ```
+7.  Type `continue` (or `c`) to let the query finish and display the output on the client terminal.
 
 ### Step 4: Interrupt and Exit GDB
 When the database is running (e.g. after typing `continue` or during startup/idle execution), the `(gdb)` prompt is inaccessible because GDB is monitoring the running process. To stop execution and exit:

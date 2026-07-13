@@ -250,21 +250,30 @@ At the GDB prompt, set a breakpoint on `dispatch_command` and type `run`:
 The database daemon will start up and print its standard log output directly to the GDB console.
 
 ### Step 3: Connect and Trigger the Breakpoint
-In a **new terminal window**, connect to the database:
-```bash
-make mysql
-```
-And execute a query:
-```sql
-SELECT 202;
-```
-Back in your **GDB terminal window**, you will see GDB capture the incoming connection thread and hit the breakpoint:
-```text
-[New Thread 0x7f23c0000c00 (LWP 54321)]
-Thread 3 "mariadbd" hit Breakpoint 1, dispatch_command (command=COM_QUERY, thd=0x7f23c0000c08, ...)
-(gdb) print thd->m_query_string
-```
-Type `continue` (or `c`) to resume and allow the query to complete.
+1.  In a **new terminal window**, attempt to connect to the database:
+    ```bash
+    make mysql
+    ```
+    > [!IMPORTANT]
+    > **Why the client hangs immediately:** The client automatically issues initialization commands (such as selecting collations, checking server variables, and setting up sessions) upon connection. Because you set a breakpoint on `dispatch_command`, the backend thread will hit the breakpoint during this phase, causing the client terminal to freeze before displaying the prompt.
+
+2.  Go back to your **GDB terminal window**. GDB will show that the breakpoint has been hit:
+    ```text
+    [New Thread 0x7f23c0000c00 (LWP 54321)]
+    Thread 3 "mariadbd" hit Breakpoint 1, dispatch_command (command=COM_QUERY, thd=0x7f23c0000c08, ...)
+    ```
+3.  Type `continue` (or `c`) in GDB. You may need to do this 1 or 2 times to let the startup initialization commands complete.
+4.  Once the initialization completes, the `MariaDB [(none)]>` prompt will appear in the client window.
+5.  Now, in the client terminal, run your target test query:
+    ```sql
+    SELECT 202;
+    ```
+6.  The client will freeze again. In the GDB terminal, you will see GDB hit the breakpoint for your query:
+    ```text
+    Thread 3 "mariadbd" hit Breakpoint 1, dispatch_command (command=COM_QUERY, thd=0x7f23c0000c08, ...)
+    (gdb) print thd->m_query_string
+    ```
+7.  Type `continue` (or `c`) to resume and allow the query to complete.
 
 ### Step 4: Interrupt and Exit GDB
 When the database is running (e.g. after typing `continue` or during startup/idle execution), the `(gdb)` prompt is inaccessible because GDB is monitoring the running server process. To stop execution and exit:

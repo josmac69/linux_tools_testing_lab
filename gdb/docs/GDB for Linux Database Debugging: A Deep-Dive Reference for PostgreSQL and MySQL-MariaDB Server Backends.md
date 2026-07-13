@@ -97,43 +97,58 @@ To debug a PostgreSQL instance from startup under GDB, use the following sequenc
     gdb --args /usr/lib/postgresql/15/bin/postgres -D /var/lib/postgresql/15/main -c config_file=/etc/postgresql/15/main/postgresql.conf
     ```
 
-3.  **Configure GDB for PostgreSQL's signals and process model:**
+3.  **Configure GDB for PostgreSQL's signals:**
     In the GDB console, configure signal handling so that PostgreSQL's internal inter-process communication signals (`SIGUSR1` and `SIGUSR2`) do not constantly interrupt your session:
     ```text
     (gdb) handle SIGUSR1 noprint nostop
     (gdb) handle SIGUSR2 noprint nostop
     ```
-    Since PostgreSQL uses a process-per-connection architecture, configure GDB to track connection backends spawned by the main postmaster process:
-    ```text
-    (gdb) set follow-fork-mode child
-    (gdb) set detach-on-fork off
-    (gdb) set schedule-multiple on
-    ```
-    *Note: `follow-fork-mode child` instructs GDB to follow newly spawned connection subprocesses. `detach-on-fork off` keeps the main postmaster process under control as another inferior, which you can switch to using `info inferiors` and `inferior N`.*
-
     Define helper macros so that compiler intrinsics and offsets evaluate correctly:
     ```text
     (gdb) macro define __builtin_offsetof(T,F) ((int) &(((T *) 0)->F))
     (gdb) macro define __extension__
     ```
 
-4.  **Set a breakpoint and run:**
+4.  **Set a breakpoint and run the server:**
     Set a breakpoint on `exec_simple_query` (or `PostgresMain` for general connection initialization) and launch the server:
     ```text
     (gdb) break exec_simple_query
     (gdb) run
     ```
+    The postmaster daemon will start up and run the system initialization and startup process.
 
-5.  **Provoke the breakpoint from a client:**
+5.  **Wait for startup to complete, then enable fork-following:**
+    Wait until you see the following log line indicating the server startup is complete:
+    ```text
+    LOG:  database system is ready to accept connections
+    ```
+    *Note: Do not configure fork-tracking before running the server, or GDB will follow the short-lived database startup and checkpointer processes. When they exit, GDB will halt on their dead inferiors.*
+    
+    Once the database is ready:
+    *   Press **Ctrl+C** to pause the postmaster process and return to the `(gdb)` prompt.
+    *   Configure GDB to follow connection child processes:
+        ```text
+        (gdb) set follow-fork-mode child
+        (gdb) set detach-on-fork off
+        (gdb) set schedule-multiple on
+        ```
+    *   Resume the postmaster process:
+        ```text
+        (gdb) continue
+        ```
+
+6.  **Provoke the breakpoint from a client:**
     In a separate terminal, connect using `psql`:
     ```bash
     psql -U postgres
     ```
+    *Note: The `psql` client executes several initialization queries (e.g., version checks, timezone settings) upon connection. Because of the breakpoint on `exec_simple_query`, the client connection will hang immediately. You must switch back to the GDB console and type `continue` (or `c`) 2 or 3 times to allow the session setup to finish and get the `postgres=#` prompt.*
+
     Once connected, run a query:
     ```sql
     SELECT 42;
     ```
-    The client will hang, and GDB will switch to the newly spawned backend process and hit the breakpoint:
+    The client will hang again, and GDB will switch to the newly spawned backend process and hit the breakpoint:
     ```text
     [New inferior 2 (process 12345)]
     [Switching to inferior 2 (process 12345)]
@@ -143,7 +158,7 @@ To debug a PostgreSQL instance from startup under GDB, use the following sequenc
 
     Type `continue` (or `c`) to let the query finish and display on the client terminal.
 
-6.  **Interrupt and exit GDB:**
+7.  **Interrupt and exit GDB:**
     When the database is running (e.g., after typing `continue`), the `(gdb)` prompt is inaccessible. To stop the running daemon and regain GDB control:
     *   Press **Ctrl+C** to send an interrupt signal. GDB will pause execution and restore the `(gdb)` prompt.
     *   Type `quit` (or `q`) to exit the debugger. If GDB asks to quit anyway, type `y`.
@@ -195,11 +210,13 @@ To debug a MySQL or MariaDB server from startup under GDB:
     ```bash
     mariadb -u root
     ```
-    Run a query:
+    *Note: The client issues internal initialization queries immediately upon connection. Consequently, the client terminal will freeze before showing the prompt. Switch back to GDB and type `continue` (or `c`) 1 or 2 times until the client prompt `MariaDB [(none)]>` is presented.*
+
+    Once connected, run a query:
     ```sql
     SELECT 99;
     ```
-    The client will freeze, and GDB will report that the connection thread has hit the breakpoint:
+    The client will freeze again, and GDB will report that the connection thread has hit the breakpoint:
     ```text
     [New Thread 0x7f23c0000c00 (LWP 54321)]
     Thread 3 "mariadbd" hit Breakpoint 1, dispatch_command (command=COM_QUERY, thd=0x7f23c0000c08, ...)
