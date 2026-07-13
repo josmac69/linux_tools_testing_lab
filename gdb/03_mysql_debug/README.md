@@ -228,6 +228,57 @@ When debugging offline or in a live session, you can query GDB to discover what 
 
 ---
 
+## Running MariaDB/MySQL Directly under GDB (Interactive Startup)
+
+Instead of attaching to an already running database daemon, you can launch the MariaDB server (`mariadbd`) directly inside GDB. This is useful for debugging thread-pool initialization, query execution setup, or startup routines.
+
+### Step 1: Start MariaDB inside GDB
+Stop any existing container and launch a new interactive session running GDB:
+```bash
+make run-gdb
+```
+This target starts the container in the foreground (`-it`) and launches GDB wrapping `mariadbd`, pre-configured to ignore internal signals like `SIGUSR1`, `SIGUSR2`, `SIGPIPE`, and `SIGALRM`.
+
+GDB will load the symbols and stop at the `(gdb)` prompt.
+
+### Step 2: Set a Breakpoint and Launch the Server
+At the GDB prompt, set a breakpoint on `dispatch_command` and type `run`:
+```text
+(gdb) break dispatch_command
+(gdb) run
+```
+The database daemon will start up and print its standard log output directly to the GDB console.
+
+### Step 3: Connect and Trigger the Breakpoint
+In a **new terminal window**, connect to the database:
+```bash
+make mysql
+```
+And execute a query:
+```sql
+SELECT 202;
+```
+Back in your **GDB terminal window**, you will see GDB capture the incoming connection thread and hit the breakpoint:
+```text
+[New Thread 0x7f23c0000c00 (LWP 54321)]
+Thread 3 "mariadbd" hit Breakpoint 1, dispatch_command (command=COM_QUERY, thd=0x7f23c0000c08, ...)
+(gdb) print thd->m_query_string
+```
+Type `continue` (or `c`) to resume and allow the query to complete.
+
+### Step 4: Interrupt and Exit GDB
+When the database is running (e.g. after typing `continue` or during startup/idle execution), the `(gdb)` prompt is inaccessible because GDB is monitoring the running server process. To stop execution and exit:
+1.  In your GDB terminal, press **Ctrl+C**. This sends an interrupt signal to GDB, pausing the MariaDB/MySQL threads and restoring the active `(gdb)` prompt.
+2.  Type `quit` (or `q`) and press Enter to exit. If GDB asks:
+    ```text
+    A debugging session is active.
+        Inferior 1 [process ...] will be killed.
+    Quit anyway? (y or n)
+    ```
+    Type `y` and press Enter. This will stop GDB and shut down the container.
+
+---
+
 ## Cleaning Up
 Once you are done with the exercise, stop and remove the container, and clean up any core dump files:
 ```bash

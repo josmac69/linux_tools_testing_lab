@@ -251,6 +251,58 @@ When debugging offline or in a live session, you can query GDB to discover what 
 
 ---
 
+## Running PostgreSQL Directly under GDB (Interactive Startup)
+
+Instead of attaching GDB to an already running PostgreSQL backend process, you can launch the entire PostgreSQL server daemon (postmaster) directly inside GDB. This is useful for debugging startup routines, backend spawning logic, or early signal handling.
+
+### Step 1: Start PostgreSQL inside GDB
+Stop any existing container and launch a new interactive session running GDB:
+```bash
+make run-gdb
+```
+This target starts the container in the foreground (`-it`) and launches GDB wrapping the main `postgres` process, pre-configured with signal-handling exemptions for `SIGUSR1` and `SIGUSR2`, as well as fork-following logic.
+
+GDB will load the symbols and stop at the `(gdb)` prompt.
+
+### Step 2: Set a Breakpoint and Launch the Server
+At the GDB prompt, set a breakpoint on `exec_simple_query` and type `run`:
+```text
+(gdb) break exec_simple_query
+(gdb) run
+```
+The postmaster daemon will start up and print its standard log output directly to the GDB console.
+
+### Step 3: Connect and Trigger the Breakpoint
+In a **new terminal window**, connect to the database:
+```bash
+make psql
+```
+And execute a query:
+```sql
+SELECT 101;
+```
+Back in your **GDB terminal window**, you will see GDB intercept the newly spawned child process and stop at the breakpoint:
+```text
+[New inferior 2 (process 12345)]
+[Switching to inferior 2 (process 12345)]
+Breakpoint 1, exec_simple_query (query_string=0x... "SELECT 101;") at postgres.c:1234
+(gdb) print query_string
+```
+Type `continue` (or `c`) to let the query finish and display on the client terminal.
+
+### Step 4: Interrupt and Exit GDB
+When the database is running (e.g. after typing `continue` or during startup/idle execution), the `(gdb)` prompt is inaccessible because GDB is monitoring the running process. To stop execution and exit:
+1.  In your GDB terminal, press **Ctrl+C**. This sends an interrupt signal to GDB, pausing the PostgreSQL backend and restoring the active `(gdb)` prompt.
+2.  Type `quit` (or `q`) and press Enter to exit. If GDB asks:
+    ```text
+    A debugging session is active.
+        Inferior 1 [process ...] will be killed.
+    Quit anyway? (y or n)
+    ```
+    Type `y` and press Enter. This will stop GDB and shut down the container.
+
+---
+
 ## Cleaning Up
 Once you are done with the exercise, stop and remove the container, and clean up any core dump files:
 ```bash

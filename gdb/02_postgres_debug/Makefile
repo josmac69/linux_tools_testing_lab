@@ -1,4 +1,4 @@
-.PHONY: docker-build run-server psql gdb-attach gcore gcore-analyze clean
+.PHONY: docker-build run-server run-gdb psql gdb-attach gcore gcore-analyze clean
 
 # Name of the GDB postgres container
 CONTAINER_NAME = lab-gdb-postgres
@@ -16,6 +16,16 @@ run-server: docker-build
 		--security-opt seccomp=unconfined \
 		lab-gdb-postgres
 	@echo "PostgreSQL container starting. Wait a few seconds, then run 'make psql'."
+
+# Run the PostgreSQL server in GDB directly (foreground, interactive)
+run-gdb: docker-build
+	-docker rm -f $(CONTAINER_NAME) 2>/dev/null || true
+	docker run -it \
+		--name $(CONTAINER_NAME) \
+		--cap-add=SYS_PTRACE \
+		--security-opt seccomp=unconfined \
+		-e USE_GDB=1 \
+		lab-gdb-postgres
 
 # Enter interactive SQL client console
 psql:

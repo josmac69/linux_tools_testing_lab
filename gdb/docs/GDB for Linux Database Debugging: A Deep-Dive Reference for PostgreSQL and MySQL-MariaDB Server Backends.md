@@ -42,7 +42,7 @@
 
 - **Start / attach / core:** `gdb --args postgres -D /path/to/data`; attach with `sudo gdb -p PID` (or `attach PID`); post-mortem with `gdb /path/to/postgres /path/to/core`. GDB prints the current frame on attach, e.g. `0xb7c73424 in __kernel_vsyscall ()`.
 - **Breakpoints:** `break func` / `tbreak` (temporary) / conditional `break errfinish if errordata[errordata_stack_depth].elevel >= 20` / `commands` (auto-run commands at a breakpoint). **Watchpoints:** `watch expr` (write), `rwatch` (read), `awatch` (any); prefer `watch -l expr` under rr so reverse execution isn't slow/buggy. **Catchpoints:** `catch fork`, `catch exec`, `catch syscall`.
-- **Execution control:** `run`, `continue`/`cont`, `next`, `step`, `stepi`/`nexti`, `finish` (run to caller — Postgres hackers use `fin` repeatedly to see if a stuck backend makes progress), `until`, `return`.
+- **Execution control:** `run`, `continue`/`cont` (resumes execution; when the process is running, the GDB prompt is inaccessible. Press **Ctrl+C** to interrupt the target and regain the `(gdb)` prompt), `next`, `step`, `stepi`/`nexti`, `finish` (run to caller — Postgres hackers use `fin` repeatedly to see if a stuck backend makes progress), `until`, `return`.
 - **Stack:** `backtrace`/`bt`, `bt full` (with locals — the wiki now recommends `bt full` over `bt`), `frame N`, `up`, `down`, `info frame`, `info args`, `info locals`.
 - **Data:** `print`/`p`, `ptype`, `whatis`, `x` (examine memory), `display`, `set variable`, and `call` (invoke a function in the inferior — the basis of calling `pprint` in Postgres). `dump binary memory file start end` extracts raw memory (e.g. dumping an 8 KiB Postgres page: `dump binary memory /tmp/dump_block.page origpage (origpage + 8192)`).
 - **Source / info:** `list`, `directory`; `info threads`, `info registers`, `info sharedlibrary`, `info proc mappings`, `info inferiors`, `info pretty-printer`.
@@ -81,8 +81,72 @@ The wiki is explicit that the backend is paused on attach and "*can even hold up
 
 **Core dumps.** Enable with `ulimit -c unlimited` (in the startup script) and a non-clobbering pattern via `/proc/sys/kernel/core_pattern` (e.g. `core.%p.sig%s.%ts` or `core.%e.%p.SIG%s.%t`); verify per-process with `/proc/$pid/limits` ("Max core file size" non-zero). Because Postgres uses large shared memory, temporarily reduce `shared_buffers` to avoid multi-GB, system-stalling cores, and set the **coredump_filter** (`echo 0x33 > /proc/$pid/coredump_filter`) / GDB `set use-coredump-filter off` when you actually need shared memory in the dump. Test with `kill -ABRT <backend_pid>`. Analyze: `sudo -u postgres gdb -q /usr/lib/postgresql/NN/bin/postgres /path/core` then `bt full`. The wiki's own example shows a WAL writer core resolving to `WalWriterMain → AuxiliaryProcessMain` once symbols are installed — and the same trace as `?? ()` without them.
 
-**Starting Postgres under GDB (development).** Stop the server, `gdb --args postgres -D data`, then `set detach-on-fork off`, `set schedule-multiple on`, `handle SIGUSR1/SIGUSR2 noprint nostop`, define macros so Postgres macros evaluate (`macro define __builtin_offsetof(T,F) ((int) &(((T *) 0)->F))`, `macro define __extension__`), and `run`. Use `info inferiors`/`inferior NUM` to switch between postmaster and backends. The wiki warns this is "*still quite fragile, so don't expect to be able to do this in production.*"
+**Starting and running Postgres under GDB (development/test).**
+To debug a PostgreSQL instance from startup under GDB, use the following sequence. This is essential for debugging initialization routines, postmaster startup, or tracing early connection handshakes before a backend is fully established.
 
+1.  **Stop any running database service:**
+    ```bash
+    # Stop the running service via systemctl
+    sudo systemctl stop postgresql
+    # Or stop manually using pg_ctl
+    pg_ctl -D /var/lib/postgresql/15/main stop
+    ```
+
+2.  **Start GDB pointing to the `postgres` executable and the data directory:**
+    ```bash
+    gdb --args /usr/lib/postgresql/15/bin/postgres -D /var/lib/postgresql/15/main -c config_file=/etc/postgresql/15/main/postgresql.conf
+    ```
+
+3.  **Configure GDB for PostgreSQL's signals and process model:**
+    In the GDB console, configure signal handling so that PostgreSQL's internal inter-process communication signals (`SIGUSR1` and `SIGUSR2`) do not constantly interrupt your session:
+    ```text
+    (gdb) handle SIGUSR1 noprint nostop
+    (gdb) handle SIGUSR2 noprint nostop
+    ```
+    Since PostgreSQL uses a process-per-connection architecture, configure GDB to track connection backends spawned by the main postmaster process:
+    ```text
+    (gdb) set follow-fork-mode child
+    (gdb) set detach-on-fork off
+    (gdb) set schedule-multiple on
+    ```
+    *Note: `follow-fork-mode child` instructs GDB to follow newly spawned connection subprocesses. `detach-on-fork off` keeps the main postmaster process under control as another inferior, which you can switch to using `info inferiors` and `inferior N`.*
+
+    Define helper macros so that compiler intrinsics and offsets evaluate correctly:
+    ```text
+    (gdb) macro define __builtin_offsetof(T,F) ((int) &(((T *) 0)->F))
+    (gdb) macro define __extension__
+    ```
+
+4.  **Set a breakpoint and run:**
+    Set a breakpoint on `exec_simple_query` (or `PostgresMain` for general connection initialization) and launch the server:
+    ```text
+    (gdb) break exec_simple_query
+    (gdb) run
+    ```
+
+5.  **Provoke the breakpoint from a client:**
+    In a separate terminal, connect using `psql`:
+    ```bash
+    psql -U postgres
+    ```
+    Once connected, run a query:
+    ```sql
+    SELECT 42;
+    ```
+    The client will hang, and GDB will switch to the newly spawned backend process and hit the breakpoint:
+    ```text
+    [New inferior 2 (process 12345)]
+    [Switching to inferior 2 (process 12345)]
+    Breakpoint 1, exec_simple_query (query_string=0x5608b4ea1748 "SELECT 42;") at postgres.c:1234
+    (gdb) print query_string
+    ```
+
+    Type `continue` (or `c`) to let the query finish and display on the client terminal.
+
+6.  **Interrupt and exit GDB:**
+    When the database is running (e.g., after typing `continue`), the `(gdb)` prompt is inaccessible. To stop the running daemon and regain GDB control:
+    *   Press **Ctrl+C** to send an interrupt signal. GDB will pause execution and restore the `(gdb)` prompt.
+    *   Type `quit` (or `q`) to exit the debugger. If GDB asks to quit anyway, type `y`.
 **Build flags.** Per the Postgres Developer FAQ, when developing C code you should "*ALWAYS work in a build configured with the `--enable-cassert` and `--enable-debug` options*"; asserts add sanity checks, `--enable-debug` adds symbols. Optimized builds (`-O2`) inline functions and drop frame pointers, producing `<optimized out>` for variables and missing stack frames; build with `CFLAGS="-Og -g3"` or `-O0` for reliable local/argument visibility. `pg_config` reports the configure/CFLAGS used.
 
 **printf vs GDB in the community.** Postgres relies heavily on `elog`/`ereport` and `backtrace_functions`/`backtrace_on_error` GUCs (set `backtrace_functions='typenameType'` to attach a backtrace when a specific function raises). These need `-rdynamic` for symbol names (Postgres normally isn't built with it, so `addr2line -e postgres <addr>` resolves addresses); static function names still won't appear. GDB tracepoints are "*much more powerful than … perf … with the tradeoff that they're much more intrusive.*"
@@ -95,6 +159,59 @@ The wiki is explicit that the backend is paused on attach and "*can even hold up
 
 **Threaded architecture changes the workflow.** mysqld/mariadbd is one process, thread-per-connection (`handle_one_connection` → `do_command` → `dispatch_command` → `mysql_parse` → `mysql_execute_command`). You attach once and use thread-centric commands. Attach in a container: `podman exec -ti --user mysql mdb105 gdb -p 1` (needs `--cap-add CAP_SYS_PTRACE`).
 
+**Starting and running MariaDB/MySQL under GDB (development/test).**
+To debug a MySQL or MariaDB server from startup under GDB:
+
+1.  **Stop any running database service:**
+    ```bash
+    # Stop the running service via systemctl
+    sudo systemctl stop mariadb   # or mysql
+    ```
+
+2.  **Start GDB pointing to the server binary as the `mysql` user:**
+    ```bash
+    sudo -u mysql gdb --args /usr/sbin/mariadbd --console --skip-stack-trace --innodb-use-native-aio=OFF
+    ```
+    *Note: The `--console` option directs log output to stdout/stderr, `--skip-stack-trace` disables MySQL's internal crash signal handlers so that GDB intercepts segfaults directly, and `--innodb-use-native-aio=OFF` prevents conflicts with asynchronous I/O threads during GDB pauses.*
+
+3.  **Configure GDB signal handling:**
+    MySQL/MariaDB utilizes multiple internal signals for thread coordination, connection timeouts, and diagnostics. Instruct GDB not to stop on these signals:
+    ```text
+    (gdb) handle SIGUSR1 noprint nostop
+    (gdb) handle SIGUSR2 noprint nostop
+    (gdb) handle SIGPIPE noprint nostop
+    (gdb) handle SIGALRM noprint nostop
+    ```
+
+4.  **Set a breakpoint and run the server:**
+    Set a breakpoint on `dispatch_command` and run the database server:
+    ```text
+    (gdb) break dispatch_command
+    (gdb) run
+    ```
+
+5.  **Connect from a client and trigger the breakpoint:**
+    In a separate terminal, open the client:
+    ```bash
+    mariadb -u root
+    ```
+    Run a query:
+    ```sql
+    SELECT 99;
+    ```
+    The client will freeze, and GDB will report that the connection thread has hit the breakpoint:
+    ```text
+    [New Thread 0x7f23c0000c00 (LWP 54321)]
+    Thread 3 "mariadbd" hit Breakpoint 1, dispatch_command (command=COM_QUERY, thd=0x7f23c0000c08, ...)
+    (gdb) print thd->m_query_string
+    ```
+
+    Type `continue` (or `c`) to resume and allow the query to complete.
+
+6.  **Interrupt and exit GDB:**
+    When the server is running, the `(gdb)` prompt is not interactive. To halt the server and return to GDB control:
+    *   Press **Ctrl+C** in the GDB terminal. This interrupts execution and brings back the `(gdb)` prompt.
+    *   Type `quit` (or `q`) to exit GDB.
 **Core & full traces.** Start with `--core-file` to dump on SIGSEGV; open with `gdb /usr/sbin/mariadbd /var/lib/mysql/core.NNN`. MariaDB's canonical batch command:
 ```
 gdb --batch --eval-command="set print frame-arguments all" \

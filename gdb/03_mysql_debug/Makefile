@@ -1,4 +1,4 @@
-.PHONY: docker-build run-server mysql gdb-attach gcore gcore-analyze clean
+.PHONY: docker-build run-server run-gdb mysql gdb-attach gcore gcore-analyze clean
 
 # Name of the GDB mysql container
 CONTAINER_NAME = lab-gdb-mysql
@@ -16,6 +16,16 @@ run-server: docker-build
 		--security-opt seccomp=unconfined \
 		lab-gdb-mysql
 	@echo "MariaDB container starting. Wait a few seconds, then run 'make mysql'."
+
+# Run the MariaDB/MySQL server in GDB directly (foreground, interactive)
+run-gdb: docker-build
+	-docker rm -f $(CONTAINER_NAME) 2>/dev/null || true
+	docker run -it \
+		--name $(CONTAINER_NAME) \
+		--cap-add=SYS_PTRACE \
+		--security-opt seccomp=unconfined \
+		-e USE_GDB=1 \
+		lab-gdb-mysql
 
 # Enter interactive SQL client console
 mysql:

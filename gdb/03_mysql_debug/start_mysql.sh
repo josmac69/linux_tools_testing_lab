@@ -13,4 +13,13 @@ fi
 # Start the MariaDB daemon in the foreground, logging directly to console
 # Note: --innodb-use-native-aio=OFF disables io_uring kernel workers, preventing GDB/gcore hangs
 echo "=== Starting MariaDB Server ==="
-exec /usr/sbin/mariadbd --user=mysql --console --innodb-use-native-aio=OFF
+if [ "$USE_GDB" = "1" ]; then
+    exec sudo -u mysql gdb \
+        -ex "handle SIGUSR1 noprint nostop" \
+        -ex "handle SIGUSR2 noprint nostop" \
+        -ex "handle SIGPIPE noprint nostop" \
+        -ex "handle SIGALRM noprint nostop" \
+        --args /usr/sbin/mariadbd --console --skip-stack-trace --innodb-use-native-aio=OFF
+else
+    exec /usr/sbin/mariadbd --user=mysql --console --innodb-use-native-aio=OFF
+fi

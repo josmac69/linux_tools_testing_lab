@@ -16,6 +16,18 @@ fi
 
 # Run PostgreSQL daemon in the foreground as the postgres user
 echo "=== Starting PostgreSQL 15 Server ==="
-exec sudo -u postgres /usr/lib/postgresql/15/bin/postgres \
-    -D /var/lib/postgresql/15/main \
-    -c config_file=/etc/postgresql/15/main/postgresql.conf
+if [ "$USE_GDB" = "1" ]; then
+    exec sudo -u postgres gdb \
+        -ex "handle SIGUSR1 noprint nostop" \
+        -ex "handle SIGUSR2 noprint nostop" \
+        -ex "set follow-fork-mode child" \
+        -ex "set detach-on-fork off" \
+        -ex "set schedule-multiple on" \
+        --args /usr/lib/postgresql/15/bin/postgres \
+        -D /var/lib/postgresql/15/main \
+        -c config_file=/etc/postgresql/15/main/postgresql.conf
+else
+    exec sudo -u postgres /usr/lib/postgresql/15/bin/postgres \
+        -D /var/lib/postgresql/15/main \
+        -c config_file=/etc/postgresql/15/main/postgresql.conf
+fi
