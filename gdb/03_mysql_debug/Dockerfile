@@ -7,6 +7,7 @@ RUN echo 'deb http://deb.debian.org/debian-debug bookworm-debug main' >> /etc/ap
     apt-get install -y \
     mariadb-server \
     mariadb-server-dbgsym \
+    mariadb-server-core-dbgsym \
     gdb \
     procps \
     sudo \
