@@ -1,4 +1,4 @@
-.PHONY: docker-build run-server mysql gdb-attach gcore clean
+.PHONY: docker-build run-server mysql gdb-attach gcore gcore-analyze clean
 
 # Name of the GDB mysql container
 CONTAINER_NAME = lab-gdb-mysql
@@ -83,5 +83,26 @@ gcore:
 	echo "  docker exec -it $(CONTAINER_NAME) gdb /usr/sbin/mariadbd /lab/mariadb.core.$$PID"; \
 	echo "============================================================"
 
+# Locate and analyze the core dump inside the container using GDB
+gcore-analyze:
+	@CORE_FILE=$$(docker exec -i $(CONTAINER_NAME) sh -c "ls /lab/mariadb.core.* 2>/dev/null | head -n 1" | tr -d '\r'); \
+	if [ -z "$$CORE_FILE" ]; then \
+		echo "======================================================================"; \
+		echo "Error: No core file found inside the container's /lab/ directory."; \
+		echo "Please run 'make gcore' first to generate one."; \
+		echo "======================================================================"; \
+		exit 1; \
+	fi; \
+	echo "============================================================"; \
+	echo "MANUAL STEP: Analyze the located core dump $$CORE_FILE offline using GDB:"; \
+	echo "  gdb /usr/sbin/mariadbd $$CORE_FILE"; \
+	echo ""; \
+	echo "Under-the-hood wrapper command:"; \
+	echo "  docker exec -it $(CONTAINER_NAME) gdb /usr/sbin/mariadbd $$CORE_FILE"; \
+	echo "============================================================"; \
+	echo ""; \
+	docker exec -it $(CONTAINER_NAME) gdb /usr/sbin/mariadbd $$CORE_FILE
+
 clean:
 	-docker rm -f $(CONTAINER_NAME) 2>/dev/null || true
+	rm -f mariadb.core.*
