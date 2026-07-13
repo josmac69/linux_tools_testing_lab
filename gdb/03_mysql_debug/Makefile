@@ -19,10 +19,18 @@ run-server: docker-build
 
 # Enter interactive SQL client console
 mysql:
+	@echo "============================================================"
+	@echo "MANUAL SQL CLIENT EXECUTION COMMAND:"
+	@echo "  docker exec -it $(CONTAINER_NAME) mariadb -u root"
+	@echo "============================================================"
 	docker exec -it $(CONTAINER_NAME) mariadb -u root
 
 # Attach GDB directly to the main multi-threaded mariadbd process
 gdb-attach:
+	@echo "============================================================"
+	@echo "MANUAL STEP 1: Find the PID of the running MariaDB daemon process:"
+	@echo "  pidof mariadbd"
+	@echo "============================================================"
 	@PID=$$(docker exec -i $(CONTAINER_NAME) pidof mariadbd 2>/dev/null | tr -d '\r' || true); \
 	if [ -z "$$PID" ]; then \
 		echo "======================================================================"; \
@@ -30,12 +38,24 @@ gdb-attach:
 		echo "======================================================================"; \
 		exit 1; \
 	fi; \
-	echo "Found MariaDB server process PID: $$PID"; \
-	echo "Attaching GDB..."; \
+	echo "Detected daemon process PID: $$PID"; \
+	echo ""; \
+	echo "============================================================"; \
+	echo "MANUAL STEP 2: Attach GDB to the daemon PID inside the container:"; \
+	echo "  gdb /usr/sbin/mariadbd $$PID"; \
+	echo ""; \
+	echo "Under-the-hood wrapper command:"; \
+	echo "  docker exec -it $(CONTAINER_NAME) gdb /usr/sbin/mariadbd $$PID"; \
+	echo "============================================================"; \
+	echo ""; \
 	docker exec -it $(CONTAINER_NAME) gdb /usr/sbin/mariadbd $$PID
 
 # Generate a non-destructive core dump of the main mariadbd process
 gcore:
+	@echo "============================================================"
+	@echo "MANUAL STEP 1: Find the PID of the running MariaDB daemon process:"
+	@echo "  pidof mariadbd"
+	@echo "============================================================"
 	@PID=$$(docker exec -i $(CONTAINER_NAME) pidof mariadbd 2>/dev/null | tr -d '\r' || true); \
 	if [ -z "$$PID" ]; then \
 		echo "======================================================================"; \
@@ -43,12 +63,25 @@ gcore:
 		echo "======================================================================"; \
 		exit 1; \
 	fi; \
-	echo "Found MariaDB server process PID: $$PID"; \
-	echo "Generating non-destructive core dump..."; \
-	docker exec -it $(CONTAINER_NAME) gcore -o /lab/mariadb.core $$PID
-	@echo "Core dump successfully saved to /lab/mariadb.core.<pid> inside container."
-	@echo "To analyze the core dump offline, run:"
-	@echo "  docker exec -it $(CONTAINER_NAME) gdb /usr/sbin/mariadbd /lab/mariadb.core.$$PID"
+	echo "Detected daemon process PID: $$PID"; \
+	echo ""; \
+	echo "============================================================"; \
+	echo "MANUAL STEP 2: Dump daemon process memory inside the container:"; \
+	echo "  gcore -o /lab/mariadb.core $$PID"; \
+	echo ""; \
+	echo "Under-the-hood wrapper command:"; \
+	echo "  docker exec -it $(CONTAINER_NAME) gcore -o /lab/mariadb.core $$PID"; \
+	echo "============================================================"; \
+	echo ""; \
+	docker exec -it $(CONTAINER_NAME) gcore -o /lab/mariadb.core $$PID; \
+	echo ""; \
+	echo "============================================================"; \
+	echo "MANUAL STEP 3: Analyze the core dump offline using GDB:"; \
+	echo "  gdb /usr/sbin/mariadbd /lab/mariadb.core.$$PID"; \
+	echo ""; \
+	echo "Under-the-hood wrapper command:"; \
+	echo "  docker exec -it $(CONTAINER_NAME) gdb /usr/sbin/mariadbd /lab/mariadb.core.$$PID"; \
+	echo "============================================================"
 
 clean:
 	-docker rm -f $(CONTAINER_NAME) 2>/dev/null || true

@@ -19,10 +19,18 @@ run-server: docker-build
 
 # Enter interactive SQL client console
 psql:
+	@echo "============================================================"
+	@echo "MANUAL SQL CLIENT EXECUTION COMMAND:"
+	@echo "  docker exec -it $(CONTAINER_NAME) psql -U postgres"
+	@echo "============================================================"
 	docker exec -it $(CONTAINER_NAME) psql -U postgres
 
 # Auto-detect client backend PID and attach GDB
 gdb-attach:
+	@echo "============================================================"
+	@echo "MANUAL STEP 1: Query the database to find the connection backend PID:"
+	@echo "  psql -U postgres -t -A -c \"SELECT pid FROM pg_stat_activity WHERE backend_type = 'client backend' AND pid <> pg_backend_pid() LIMIT 1;\""
+	@echo "============================================================"
 	@PID=$$(docker exec -i $(CONTAINER_NAME) psql -U postgres -t -A -c \
 		"SELECT pid FROM pg_stat_activity WHERE backend_type = 'client backend' AND pid <> pg_backend_pid() LIMIT 1;" 2>/dev/null || true); \
 	if [ -z "$$PID" ]; then \
@@ -32,12 +40,24 @@ gdb-attach:
 		echo "======================================================================"; \
 		exit 1; \
 	fi; \
-	echo "Found active PostgreSQL client backend PID: $$PID"; \
-	echo "Attaching GDB to backend process..."; \
+	echo "Detected active connection PID: $$PID"; \
+	echo ""; \
+	echo "============================================================"; \
+	echo "MANUAL STEP 2: Attach GDB to that backend process inside the container:"; \
+	echo "  gdb /usr/lib/postgresql/15/bin/postgres $$PID"; \
+	echo ""; \
+	echo "Under-the-hood wrapper command:"; \
+	echo "  docker exec -it $(CONTAINER_NAME) gdb /usr/lib/postgresql/15/bin/postgres $$PID"; \
+	echo "============================================================"; \
+	echo ""; \
 	docker exec -it $(CONTAINER_NAME) gdb /usr/lib/postgresql/15/bin/postgres $$PID
 
 # Generate a non-destructive core dump of the active client backend process
 gcore:
+	@echo "============================================================"
+	@echo "MANUAL STEP 1: Query the database to find the connection backend PID:"
+	@echo "  psql -U postgres -t -A -c \"SELECT pid FROM pg_stat_activity WHERE backend_type = 'client backend' AND pid <> pg_backend_pid() LIMIT 1;\""
+	@echo "============================================================"
 	@PID=$$(docker exec -i $(CONTAINER_NAME) psql -U postgres -t -A -c \
 		"SELECT pid FROM pg_stat_activity WHERE backend_type = 'client backend' AND pid <> pg_backend_pid() LIMIT 1;" 2>/dev/null || true); \
 	if [ -z "$$PID" ]; then \
@@ -47,12 +67,25 @@ gcore:
 		echo "======================================================================"; \
 		exit 1; \
 	fi; \
-	echo "Found active PostgreSQL client backend PID: $$PID"; \
-	echo "Generating non-destructive core dump..."; \
-	docker exec -it $(CONTAINER_NAME) gcore -o /lab/postgres_backend.core $$PID
-	@echo "Core dump successfully saved to /lab/postgres_backend.core.<pid> inside container."
-	@echo "To analyze the core dump offline, run:"
-	@echo "  docker exec -it $(CONTAINER_NAME) gdb /usr/lib/postgresql/15/bin/postgres /lab/postgres_backend.core.$$PID"
+	echo "Detected active connection PID: $$PID"; \
+	echo ""; \
+	echo "============================================================"; \
+	echo "MANUAL STEP 2: Capture a non-destructive core dump inside the container:"; \
+	echo "  gcore -o /lab/postgres_backend.core $$PID"; \
+	echo ""; \
+	echo "Under-the-hood wrapper command:"; \
+	echo "  docker exec -it $(CONTAINER_NAME) gcore -o /lab/postgres_backend.core $$PID"; \
+	echo "============================================================"; \
+	echo ""; \
+	docker exec -it $(CONTAINER_NAME) gcore -o /lab/postgres_backend.core $$PID; \
+	echo ""; \
+	echo "============================================================"; \
+	echo "MANUAL STEP 3: Analyze the core dump offline using GDB:"; \
+	echo "  gdb /usr/lib/postgresql/15/bin/postgres /lab/postgres_backend.core.$$PID"; \
+	echo ""; \
+	echo "Under-the-hood wrapper command:"; \
+	echo "  docker exec -it $(CONTAINER_NAME) gdb /usr/lib/postgresql/15/bin/postgres /lab/postgres_backend.core.$$PID"; \
+	echo "============================================================"
 
 clean:
 	-docker rm -f $(CONTAINER_NAME) 2>/dev/null || true
