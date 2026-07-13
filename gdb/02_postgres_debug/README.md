@@ -91,17 +91,91 @@ This commands queries `pg_stat_activity`, extracts the PID, and runs `gcore -o /
 Saved corefile /lab/postgres_backend.core.<pid>
 ```
 
-### Step 2: Analyze the Core Dump Offline
-Once the core dump is saved, you can open and analyze it with GDB without impacting the live running PostgreSQL server:
+### Step 2: Locate and Analyze the Core Dump Inside the Container
+Once the core dump is saved, you can open and analyze it with GDB inside the container namespace without impacting the live running PostgreSQL server.
+
+To automatically locate the generated core file in the container's `/lab/` directory and spin up a debugging session against it:
 ```bash
-# Locate your generated core file (e.g. postgres_backend.core.31)
-# Open it in GDB against the PostgreSQL binary
+make gcore-analyze
+```
+Under the hood, this Makefile target checks the container's `/lab/` directory for any generated `postgres_backend.core.<pid>` files and executes GDB against it using the PostgreSQL binary:
+```bash
+# Example manual command executed inside the container:
 docker exec -it lab-gdb-postgres gdb /usr/lib/postgresql/15/bin/postgres /lab/postgres_backend.core.<pid>
 ```
 
-Within this GDB session:
+Within this core analysis GDB session:
 - The process status is frozen in the exact state it was in when `gcore` was triggered.
-- You can inspect the call stack with `backtrace` (or `bt`).
-- You can inspect global variables and memory.
 - Since it is a static memory dump, stepping commands (`next`, `step`, `continue`) are disabled.
+
+---
+
+## Detailed Analysis: What is inside a PostgreSQL Core Dump?
+
+A core dump is a complete snapshot of the virtual memory space of the target `postgres` process at the exact microsecond `gcore` was run. This includes the process's stack, heap, CPU register states, and shared memory mapping descriptors.
+
+Here is a breakdown of what you can inspect and how to interpret it:
+
+### 1. Intercepting the Current SQL Query & Client Connection State
+Even if the query is long or complex, you can extract it and find out who sent it:
+*   **Show the SQL statement**:
+    ```text
+    (gdb) print query_string
+    ```
+    This shows the exact raw query string buffer passed to `exec_simple_query`.
+*   **Inspect connection socket & client credentials**:
+    PostgreSQL stores connection details in a global `MyProcPort` struct of type `Port *`. You can inspect it:
+    ```text
+    (gdb) print *MyProcPort
+    ```
+    Look at the following key fields inside `MyProcPort`:
+    *   `sock`: The network socket file descriptor.
+    *   `remote_host`: Host IP address of the connected client.
+    *   `remote_port`: Source port of the client connection.
+    *   `database_name`: The database the client connected to.
+    *   `user_name`: The authenticated PostgreSQL database user.
+
+### 2. Tracing the Call Stack Hierarchy
+Use `backtrace` (or `bt`) to list all active stack frames. Each line (frame) represents a function that has been called but has not yet returned:
+```text
+#0  exec_simple_query (query_string=0x563fc10ea538 "select 42;") at ...
+#1  0x0000563f868452d9 in PostgresMain ...
+```
+PostgreSQL's processing stages are visible in the stack frames from bottom to top:
+1.  **`main()`** & **`PostmasterMain()`**: Daemon startup and port listening.
+2.  **`ServerLoop()`** & **`BackendStartup()`**: Spawning a backend child when a client connects.
+3.  **`PostgresMain()`**: Loop handling client queries over the network socket.
+4.  **`exec_simple_query()`**: Dispatches plain-text queries. If the query was executing, you would see frames like:
+    *   `pg_parse_query()`: Lexing/parsing query string into a parse tree.
+    *   `pg_analyze_and_rewrite()`: Resolving table names, types, and rewriting views.
+    *   `pg_plan_queries()`: Cost-based optimizer generating execution paths.
+    *   `PortalRun()` / `ExecutorRun()`: Walking the plan nodes to execute scans and joins.
+
+To jump GDB focus to a specific frame (e.g. frame `#1` to inspect `PostgresMain` variables):
+```text
+(gdb) frame 1
+```
+
+### 3. Inspecting PostgreSQL Memory Contexts
+PostgreSQL uses a hierarchy of custom memory pools called **Memory Contexts** (e.g., `TopMemoryContext`, `CacheMemoryContext`, `ExecutorStateContext`) to prevent memory leaks.
+*   **Dump the memory context tree**:
+    If the backend is stuck due to a memory issue or leak, you can execute a PostgreSQL internal utility function directly inside the GDB session to output the memory hierarchy tree:
+    ```text
+    (gdb) call MemoryContextStats(TopMemoryContext)
+    ```
+    This prints a highly detailed tree of context names, allocations, and free-list statistics to the container's standard error logs.
+
+### 4. Analyzing Locks and IPC Wait States
+If a query is hanging or slow, it may be waiting on a lock or semaphore:
+*   **Inspect lock details**:
+    PostgreSQL manages client lock waiting status in the shared memory `PGPROC` struct, pointed to by the global variable `MyProc`:
+    ```text
+    (gdb) print *MyProc
+    ```
+    *   Check `MyProc->links`: Identifies the queue state of the lock.
+    *   Check `MyProc->waitLock`: Points to the specific `LOCK` object this backend process is blocked on.
+    *   Check `MyProc->waitStatus`: Lock request status (e.g., `STATUS_WAITING` or `STATUS_OK`).
+*   **Check latch/event waits**:
+    Look at the stack trace. If the top frame is stuck in `WaitLatchOrSocket()` or `epoll_wait()`, the database is idle, waiting for the client to send a query, or waiting for physical disk I/O / WAL flush completion.
+
 
