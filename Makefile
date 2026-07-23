@@ -1,6 +1,6 @@
 # Root Makefile for Linux Tools Testing Lab
 
-.PHONY: all build-all clean-all gdb-run gdb-postgres-run gdb-postgres-psql gdb-postgres-attach gdb-postgres-gcore gdb-postgres-gcore-analyze gdb-mysql-run gdb-mysql-client gdb-mysql-attach gdb-mysql-gcore gdb-mysql-gcore-analyze perf-run perf-postgres-run perf-postgres-psql perf-postgres-stat perf-postgres-record perf-postgres-probe perf-mysql-run perf-mysql-client perf-mysql-stat perf-mysql-record strace-run bpftrace-opens bpftrace-syscount bpftrace-writebytes tcpdump-run tcpdump-clean
+.PHONY: all build-all clean-all gdb-run gdb-postgres-run gdb-postgres-psql gdb-postgres-attach gdb-postgres-gcore gdb-postgres-gcore-analyze gdb-mysql-run gdb-mysql-client gdb-mysql-attach gdb-mysql-gcore gdb-mysql-gcore-analyze perf-run perf-postgres-run perf-postgres-psql perf-postgres-stat perf-postgres-record perf-postgres-probe perf-mysql-run perf-mysql-client perf-mysql-stat perf-mysql-record strace-run bpftrace-opens bpftrace-syscount bpftrace-writebytes tcpdump-run tcpdump-clean common-healthcheck common-healthcheck-root
 
 all: build-all
 
@@ -108,6 +108,13 @@ tcpdump-run:
 
 tcpdump-clean:
 	$(MAKE) -C tcpdump clean
+
+# Common Diagnostics: always-available host tools (no Docker)
+common-healthcheck:
+	$(MAKE) -C common_diagnostics healthcheck
+
+common-healthcheck-root:
+	$(MAKE) -C common_diagnostics healthcheck-root
 
 # Clean all Docker images and Compose networks
 clean-all:

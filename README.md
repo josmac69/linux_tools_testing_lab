@@ -106,3 +106,15 @@ For deeper explanations of the exercises, concepts, and target programs in each 
 - [`/strace` README](strace/README.md)
 - [`/bpftrace` README](bpftrace/README.md)
 - [`/tcpdump` README](tcpdump/README.md)
+
+---
+
+## Bonus: Common Diagnostics (no Docker, always-available tools)
+
+The labs above teach heavyweight tools. Before you reach for them, most Linux troubleshooting starts with the small utilities that ship with *every* distribution — `ps`, `free`, `vmstat`, `ip`, `ss`, `df`, `du`, `lsblk`, plus `/proc` and `/sys`.
+
+The [`/common_diagnostics`](common_diagnostics/README.md) lab collects the most common first-line tests for **performance, network, firewall, and disk**, with annotated example output and a read-only one-shot health-check script. Unlike the other labs it runs directly on the host (no Docker), because its purpose is to inspect the real machine.
+
+```bash
+make common-healthcheck        # read-only snapshot across all four categories
+```
